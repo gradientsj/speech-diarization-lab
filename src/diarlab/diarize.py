@@ -80,10 +80,17 @@ def diarize_pyannote(
             "`uv sync --extra reference`"
         ) from exc
 
-    pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization-3.1", use_auth_token=token)
+    try:  # pyannote.audio >= 4 renamed the kwarg
+        pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization-3.1", token=token)
+    except TypeError:
+        pipeline = Pipeline.from_pretrained(
+            "pyannote/speaker-diarization-3.1", use_auth_token=token
+        )
     pipeline.to(torch.device(device))
     kwargs = {"num_speakers": num_speakers} if num_speakers else {}
-    annotation = pipeline(str(path), **kwargs)
+    result = pipeline(str(path), **kwargs)
+    # pyannote.audio >= 4 wraps the Annotation in a result object
+    annotation = getattr(result, "speaker_diarization", result)
     return [
         Turn(segment.start, segment.end, str(label))
         for segment, _, label in annotation.itertracks(yield_label=True)

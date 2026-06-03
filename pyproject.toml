@@ -23,8 +23,11 @@ models = [
     "torch>=2.2",
 ]
 # The pretrained reference pipeline (gated on Hugging Face; needs HF_TOKEN).
+# Pinned below 4.0: the 3.1 pipeline checkpoint is the reference being
+# compared against, and 4.x changed both the auth kwarg and the audio
+# loading stack.
 reference = [
-    "pyannote.audio>=3.1",
+    "pyannote.audio>=3.1,<4.0",
 ]
 dev = [
     "pytest>=8",
