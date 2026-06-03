@@ -123,18 +123,63 @@ uv run python -m diarlab.bench run --backend pyannote --device cuda
 
 ## Results
 
-Not measured yet. The benchmark harness lands next, in this order:
+Pooled over the 12 mixtures (10.9 minutes of audio, 2-4 speakers each),
+DER collar 0.25 s, clustered backend at its default threshold 0.6 unless
+marked oracle. GPU rows ran on an NVIDIA A10 (Lambda, Ubuntu 22.04), CPU
+rows on a consumer Windows desktop. Per-mixture rows and exact configs are
+in `reports/`.
 
-1. CPU numbers first: WER by Whisper size (tiny/base/small) at int8, DER for
-   the `clustered` backend, and real-time factors.
-2. The pyannote reference scored on the same mixtures with the same DER
-   implementation, so the from-parts pipeline has something to be judged
-   against.
-3. GPU (RTX 4090) real-time factors and the CTranslate2 compute-type sweep
-   (int8 / int8_float16 / float16), which is the serving-optimization story.
+### Transcription and serving
 
-Numbers will appear here with sample sizes and the exact configuration that
-produced them, nothing else.
+| model | compute | hardware | WER | mean RTF |
+|---|---|---|---:|---:|
+| tiny | float16 | A10 | 5.50% | 0.015 |
+| base | float16 | A10 | 3.87% | 0.016 |
+| small | float16 | A10 | **2.84%** | 0.022 |
+| large-v3 | float16 | A10 | 4.23% | 0.087 |
+| large-v3 | int8_float16 | A10 | 4.59% | 0.098 |
+| large-v3 | int8 | A10 | 3.87% | 0.083 |
+| tiny | int8 | CPU | 5.68% | 0.117 |
+| base | int8 | CPU | 3.57% | 0.185 |
+| small | int8 | CPU | 6.17% | 0.559 |
+
+What the table says:
+
+- **small beats large-v3 on this benchmark** (2.84% vs 3.87-4.59% at
+  float16), at a quarter of the RTF. On clean read speech the largest model
+  buys nothing, which is exactly why serving decisions should be made from
+  a measured table rather than from model reputation.
+- **int8 quantization is mostly accuracy-neutral, with one revealing
+  exception.** On tiny, base, and large-v3 it matches float16 (it even
+  edges it out on large-v3). On small, 11 of 12 mixtures match float16
+  within noise, but on one mixture the int8 model silently drops whole
+  utterances (59 of 157 reference words deleted, that mixture's WER 40.1%
+  vs 3.8% at float16), inflating the pooled WER from 2.84% to 6.17%.
+  Aggregate numbers hide exactly this kind of tail failure; the
+  per-mixture rows in `reports/` are what surfaced it.
+- RTF below 0.1 everywhere on the A10 means the full large-v3 pipeline
+  clears real time with >10x headroom, and CPU int8 keeps even small at
+  ~2x real time with tiny at 8.5x.
+
+### Diarization
+
+| backend | speaker count | DER | miss | false alarm | confusion |
+|---|---|---:|---:|---:|---:|
+| clustered (from parts) | estimated | 5.64% | 4.36% | 0.00% | 1.28% |
+| clustered (from parts) | oracle | 4.36% | 4.36% | 0.00% | 0.00% |
+| pyannote-3.1 (reference) | estimated | not yet measured | | | |
+
+- The DER is **identical across every ASR configuration and across
+  Windows-CPU vs Linux-A10**, per mixture to three decimals: the diarizer
+  is fully decoupled from the ASR and deterministic across platforms.
+- Given the true speaker count, confusion drops to exactly zero: clustering
+  itself attributes no time to the wrong speaker on these mixtures. The
+  whole 1.28% confusion component comes from overcounting speakers (3->4,
+  4->5 on a few mixtures), and the 4.36% floor is missed speech at VAD
+  boundaries. Each error component points at exactly one stage to improve.
+- The pyannote reference row lands once the gated pipeline rerun completes;
+  it is the comparison this repo exists to make, so it gets measured on the
+  same mixtures with the same DER implementation or not quoted at all.
 
 ## Repository layout
 
@@ -157,15 +202,18 @@ tests/           # CPU-only, no model downloads
 
 ## What I'd do next
 
-1. **The benchmark harness and first numbers** (see Results above).
-2. **Calibrate the clustering threshold** on held-out mixtures instead of
+1. **The pyannote reference row** (rerun in flight after the 4.x compat fix).
+2. **Fix what the error decomposition points at**: looser VAD padding for
+   the 4.36% miss floor, and a better stopping rule for cluster count to
+   recover the 1.28% confusion without the oracle.
+3. **Calibrate the clustering threshold** on held-out mixtures instead of
    using the 0.6 default, and report sensitivity.
-3. **Overlapped-speech mixtures**: the current benchmark has none, which
+4. **Overlapped-speech mixtures**: the current benchmark has none, which
    flatters every system; partial-overlap construction is the obvious next
    stressor.
-4. **A thin serving layer**: a small FastAPI endpoint over the attribute
+5. **A thin serving layer**: a small FastAPI endpoint over the attribute
    pipeline, with the RTF table informing batch vs. streaming decisions.
-5. **Real conversational data**: AMI headset mix as a second benchmark with
+6. **Real conversational data**: AMI headset mix as a second benchmark with
    published baselines to sanity-check against.
 
 ## License
