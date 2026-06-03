@@ -165,9 +165,9 @@ What the table says:
 
 | backend | speaker count | DER | miss | false alarm | confusion |
 |---|---|---:|---:|---:|---:|
-| clustered (from parts) | estimated | 5.64% | 4.36% | 0.00% | 1.28% |
+| clustered (from parts) | estimated | **5.64%** | 4.36% | 0.00% | 1.28% |
 | clustered (from parts) | oracle | 4.36% | 4.36% | 0.00% | 0.00% |
-| pyannote-3.1 (reference) | estimated | not yet measured | | | |
+| pyannote-3.1 (reference) | estimated | 9.80% | 7.57% | 0.00% | 2.24% |
 
 - The DER is **identical across every ASR configuration and across
   Windows-CPU vs Linux-A10**, per mixture to three decimals: the diarizer
@@ -177,9 +177,20 @@ What the table says:
   whole 1.28% confusion component comes from overcounting speakers (3->4,
   4->5 on a few mixtures), and the 4.36% floor is missed speech at VAD
   boundaries. Each error component points at exactly one stage to improve.
-- The pyannote reference row lands once the gated pipeline rerun completes;
-  it is the comparison this repo exists to make, so it gets measured on the
-  same mixtures with the same DER implementation or not quoted at all.
+- **The from-parts pipeline beats the pretrained reference here, and the
+  caveat matters as much as the number.** pyannote-3.1 scores 9.80% on the
+  same mixtures under the same DER implementation, with the gap mostly in
+  missed speech (7.57% vs 4.36%): its segmentation trims utterance
+  boundaries more aggressively than silero VAD on clean read speech with
+  hard turn changes. That is the regime this benchmark constructs and the
+  regime the simple pipeline is built for; pyannote is tuned for
+  conversational audio with overlap and boundary ambiguity, none of which
+  exists here. It estimated the speaker count correctly on 11 of 12
+  mixtures (one 2->3 overcount). The honest claim is narrow: on
+  non-overlapped read-speech mixtures, VAD + ECAPA + agglomerative
+  clustering is sufficient and the heavier pipeline buys nothing -- the
+  overlapped-speech mixtures planned below are where the ranking should
+  flip.
 
 ## Repository layout
 
@@ -202,18 +213,17 @@ tests/           # CPU-only, no model downloads
 
 ## What I'd do next
 
-1. **The pyannote reference row** (rerun in flight after the 4.x compat fix).
-2. **Fix what the error decomposition points at**: looser VAD padding for
+1. **Fix what the error decomposition points at**: looser VAD padding for
    the 4.36% miss floor, and a better stopping rule for cluster count to
    recover the 1.28% confusion without the oracle.
-3. **Calibrate the clustering threshold** on held-out mixtures instead of
+2. **Calibrate the clustering threshold** on held-out mixtures instead of
    using the 0.6 default, and report sensitivity.
-4. **Overlapped-speech mixtures**: the current benchmark has none, which
+3. **Overlapped-speech mixtures**: the current benchmark has none, which
    flatters every system; partial-overlap construction is the obvious next
    stressor.
-5. **A thin serving layer**: a small FastAPI endpoint over the attribute
+4. **A thin serving layer**: a small FastAPI endpoint over the attribute
    pipeline, with the RTF table informing batch vs. streaming decisions.
-6. **Real conversational data**: AMI headset mix as a second benchmark with
+5. **Real conversational data**: AMI headset mix as a second benchmark with
    published baselines to sanity-check against.
 
 ## License
