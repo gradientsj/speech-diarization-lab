@@ -28,6 +28,12 @@ models = [
 # loading stack.
 reference = [
     "pyannote.audio>=3.1,<4.0",
+    # pyannote 3.x still imports torchaudio.AudioMetaData, removed in
+    # torchaudio 2.9; this drags torch down to a matching 2.8.
+    "torchaudio<2.9",
+    # pyannote 3.x forwards use_auth_token to hf_hub_download; the kwarg
+    # was removed in huggingface_hub 1.0.
+    "huggingface_hub<1.0",
 ]
 dev = [
     "pytest>=8",

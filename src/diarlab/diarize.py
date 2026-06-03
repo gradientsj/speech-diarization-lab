@@ -80,6 +80,16 @@ def diarize_pyannote(
             "`uv sync --extra reference`"
         ) from exc
 
+    # torch >= 2.6 defaults torch.load to weights_only=True, which rejects the
+    # non-tensor objects pickled inside the pyannote 3.1 checkpoint. The
+    # checkpoint comes from the gated repo the user explicitly accepted, so
+    # allowlist those globals rather than disabling weights_only.
+    from pyannote.audio.core.task import Problem, Resolution, Specifications
+
+    torch.serialization.add_safe_globals(
+        [torch.torch_version.TorchVersion, Specifications, Problem, Resolution]
+    )
+
     try:  # pyannote.audio >= 4 renamed the kwarg
         pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization-3.1", token=token)
     except TypeError:
