@@ -62,6 +62,47 @@ uv sync --extra reference
 uv run diarlab diarize meeting.wav --backend pyannote
 ```
 
+## Running the benchmark
+
+The whole loop is three commands; the corpus is public and the mixtures are
+seeded, so any machine reproduces the same benchmark bit for bit.
+
+```bash
+uv sync --extra models
+uv run python -m diarlab.bench fetch      # LibriSpeech dev-clean, 337 MB
+uv run python -m diarlab.bench build      # 12 seeded mixtures + manifest
+uv run python -m diarlab.bench run --model small --compute-type int8 --device cpu
+```
+
+Each `run` writes `reports/benchmark_<backend>_<model>_<compute>_<device>.json`
+with pooled WER, DER (split into miss / false alarm / confusion), per-mixture
+rows, and ASR real-time factors.
+
+On a CUDA box (tested on Lambda Stack / Ubuntu 22.04):
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+git clone https://github.com/gradientsj/speech-diarization-lab && cd speech-diarization-lab
+uv sync --extra models
+uv run python -m diarlab.bench fetch && uv run python -m diarlab.bench build
+uv run python -m diarlab.bench run --model large-v3 --compute-type float16 --device cuda
+```
+
+If CTranslate2 cannot find cuDNN/cuBLAS (a `libcudnn` load error), point it
+at the pip-installed NVIDIA libraries:
+
+```bash
+export LD_LIBRARY_PATH=$(uv run python -c "import os, nvidia.cublas.lib, nvidia.cudnn.lib; print(os.path.dirname(nvidia.cublas.lib.__file__) + ':' + os.path.dirname(nvidia.cudnn.lib.__file__))")
+```
+
+The gated reference backend, once `HF_TOKEN` is set and the pyannote model
+terms are accepted:
+
+```bash
+uv sync --extra models --extra reference
+uv run python -m diarlab.bench run --backend pyannote --device cuda
+```
+
 ## How it is measured
 
 - **WER** (word error rate) for transcription and **DER** (diarization error
