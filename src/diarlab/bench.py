@@ -244,6 +244,8 @@ def cmd_run(args: argparse.Namespace) -> int:
     }
 
     tag = f"{args.backend}_{args.model}_{args.compute_type}_{args.device}"
+    if args.oracle_speaker_count:
+        tag += "_oracle"
     out_json = REPORT_DIR / f"benchmark_{tag}.json"
     out_json.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(summary["overall"], indent=2))
