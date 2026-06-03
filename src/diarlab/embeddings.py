@@ -26,6 +26,8 @@ class EcapaEmbedder:
                 "speechbrain is not installed; install the model backends with "
                 "`uv sync --extra models`"
             ) from exc
+        if device == "cuda":  # speechbrain's parser wants an explicit index
+            device = "cuda:0"
         savedir = Path(cache_dir or Path.home() / ".cache" / "diarlab" / "ecapa")
         self._classifier = EncoderClassifier.from_hparams(
             source=ECAPA_SOURCE,
