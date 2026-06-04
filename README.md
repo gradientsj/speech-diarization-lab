@@ -84,6 +84,20 @@ it (diarization runs first because it is the fast stage, then ASR segments
 are attributed as faster-whisper yields them), followed by a final status
 event. Connecting after completion replays the same stream.
 
+There is also a genuinely live mode at `/live`: the page captures a
+browser tab, the screen's audio, or the microphone, streams raw PCM over
+a WebSocket, and speaker-attributed words appear one chunk (about five
+seconds) behind real time. Speakers keep stable identities across the
+whole session via an online centroid tracker; the matching threshold
+(0.50) is measured, not guessed: same-speaker chunk centroids sit at
+0.20-0.42 cosine distance on the benchmark mixtures and different-speaker
+ones at 0.58 and up. Run the server on a GPU box, reach it through an SSH
+tunnel (`ssh -L 8000:localhost:8000 box`), and open
+`http://localhost:8000/live`; the tunnel doubles as the secure context
+browser capture requires. Two tabs playing alternately attribute cleanly;
+two tabs playing at once hit the measured overlap limit, one speaker
+logged at a time.
+
 The server runs jobs on one worker thread: the models load once and the GPU
 is a serial resource. The measured real-time factors say that is enough for
 interactive use (small/float16 transcribes at 0.022 RTF on an A10, roughly

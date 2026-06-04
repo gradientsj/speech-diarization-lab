@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>diarlab live</title>
+<style>
+  :root {
+    --bg: #11151a; --panel: #1a2026; --text: #d8dee6; --muted: #7d8a99;
+    --accent: #4ea1ff;
+    --s0: #4ea1ff; --s1: #ffb14e; --s2: #5fd68b; --s3: #e07be0;
+    --s4: #ff6e6e; --s5: #5fd6d6;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 24px 20px 80px; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 20px; font-size: 14px; }
+  .controls { display: flex; gap: 8px; margin-bottom: 14px; align-items: center; flex-wrap: wrap; }
+  button {
+    background: var(--panel); color: var(--text); border: 1px solid #2c3640;
+    border-radius: 8px; padding: 8px 14px; font: inherit; cursor: pointer;
+  }
+  button:disabled { opacity: .4; cursor: default; }
+  button.active { border-color: var(--accent); color: var(--accent); }
+  #status { color: var(--muted); font-size: 13px; margin-left: auto; }
+  #vu { width: 90px; height: 8px; background: var(--panel); border-radius: 4px; overflow: hidden; }
+  #vu div { height: 100%; width: 0; background: var(--accent); transition: width .1s; }
+  .seg {
+    display: grid; grid-template-columns: 86px 1fr; gap: 12px;
+    padding: 10px 12px; border-radius: 8px; margin-bottom: 6px;
+    background: var(--panel); border-left: 3px solid var(--seg-color, transparent);
+  }
+  .seg .who { font-size: 12px; font-weight: 600; padding-top: 2px; }
+  .seg .when { font-size: 11px; color: var(--muted); font-weight: 400; }
+  .note { color: var(--muted); font-size: 13px; margin-top: 24px; }
+  .note code { background: var(--panel); padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>diarlab live</h1>
+  <p class="sub">
+    Capture a tab, the screen's audio, or the microphone; speaker-attributed
+    words appear a few seconds behind real time (one chunk of latency).
+    Speakers keep their identity across the whole session. Concurrent speech
+    logs one speaker at a time; that limit is measured, not hidden, in the
+    <a href="https://github.com/gradientsj/speech-diarization-lab#overlapped-speech" style="color:var(--accent)">overlap benchmark</a>.
+  </p>
+  <div class="controls">
+    <button id="tabBtn">capture tab / screen</button>
+    <button id="micBtn">capture microphone</button>
+    <button id="stopBtn" disabled>stop</button>
+    <div id="vu"><div></div></div>
+    <span id="status">idle</span>
+  </div>
+  <div id="log"></div>
+  <p class="note">
+    Tip for the two-YouTube-tabs experiment: choose <em>capture tab / screen</em>
+    and share the entire screen with "share system audio" checked, so both
+    tabs mix into one stream. Alternating playback attributes cleanly;
+    simultaneous playback shows the overlap failure mode live.
+  </p>
+</div>
+
+<script>
+const COLORS = ["--s0","--s1","--s2","--s3","--s4","--s5"];
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const statusEl = document.getElementById("status");
+const vuEl = document.querySelector("#vu div");
+let ctx = null, ws = null, node = null, stream = null;
+const speakerColor = {};
+
+function hue(name) {
+  if (!(name in speakerColor))
+    speakerColor[name] = css(COLORS[Object.keys(speakerColor).length % COLORS.length]);
+  return speakerColor[name];
+}
+
+function addSegment(s) {
+  const fmt = t => `${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,"0")}`;
+  const div = document.createElement("div");
+  div.className = "seg";
+  div.style.setProperty("--seg-color", hue(s.speaker));
+  div.innerHTML = `<div class="who" style="color:${hue(s.speaker)}">${s.speaker}
+      <div class="when">${fmt(s.start)}-${fmt(s.end)}</div></div>
+    <div class="text">${s.text}</div>`;
+  document.getElementById("log").appendChild(div);
+  div.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+
+async function start(getStream, btn) {
+  try { stream = await getStream(); }
+  catch (e) { statusEl.textContent = "capture refused: " + e.message; return; }
+  ctx = new AudioContext();
+  const source = ctx.createMediaStreamSource(stream);
+  node = ctx.createScriptProcessor(4096, source.channelCount || 1, 1);
+
+  ws = new WebSocket((location.protocol === "https:" ? "wss" : "ws") + "://" + location.host + "/live/ws");
+  ws.onopen = () => ws.send(JSON.stringify({ sample_rate: ctx.sampleRate }));
+  ws.onmessage = e => {
+    const msg = JSON.parse(e.data);
+    if (msg.type === "ready") statusEl.textContent = "listening (" + ctx.sampleRate + " Hz)";
+    if (msg.type === "segment") addSegment(msg.segment);
+    if (msg.type === "error") statusEl.textContent = "error: " + msg.error;
+    if (msg.type === "status") statusEl.textContent = "done";
+  };
+  ws.onclose = () => { if (statusEl.textContent.startsWith("listening")) statusEl.textContent = "disconnected"; };
+
+  node.onaudioprocess = e => {
+    const f32 = e.inputBuffer.getChannelData(0);
+    let peak = 0;
+    const i16 = new Int16Array(f32.length);
+    for (let i = 0; i < f32.length; i++) {
+      const v = Math.max(-1, Math.min(1, f32[i]));
+      peak = Math.max(peak, Math.abs(v));
+      i16[i] = v * 32767;
+    }
+    vuEl.style.width = Math.min(100, peak * 140) + "%";
+    if (ws.readyState === WebSocket.OPEN) ws.send(i16.buffer);
+  };
+  source.connect(node);
+  const mute = ctx.createGain();    // processor must reach the destination to
+  mute.gain.value = 0;              // fire, but nothing should be audible
+  node.connect(mute);
+  mute.connect(ctx.destination);
+
+  btn.classList.add("active");
+  document.getElementById("stopBtn").disabled = false;
+  statusEl.textContent = "connecting...";
+}
+
+document.getElementById("tabBtn").onclick = () =>
+  start(() => navigator.mediaDevices.getDisplayMedia({ video: true, audio: true })
+    .then(s => { if (!s.getAudioTracks().length) throw new Error("no audio shared; tick the share-audio box"); return s; }),
+    document.getElementById("tabBtn"));
+
+document.getElementById("micBtn").onclick = () =>
+  start(() => navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false } }),
+    document.getElementById("micBtn"));
+
+document.getElementById("stopBtn").onclick = () => {
+  node?.disconnect(); ctx?.close(); stream?.getTracks().forEach(t => t.stop());
+  if (ws?.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: "stop" }));
+  document.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+  document.getElementById("stopBtn").disabled = true;
+  vuEl.style.width = "0";
+};
+</script>
+</body>
+</html>

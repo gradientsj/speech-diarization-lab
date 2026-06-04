@@ -3,6 +3,33 @@
 Running notes on what was done and what each step found. Newest first.
 Numbers here are snapshots; the README tables are the source of truth.
 
+## 2026-06-04: live mode
+
+- **Built the live capture path**: a `/live` page grabs tab, screen, or
+  microphone audio in the browser and streams int16 PCM over a
+  WebSocket; the server resamples, processes rolling 5-second chunks,
+  and pushes speaker-attributed segments back about one chunk behind
+  real time. Inference shares the single worker with uploaded jobs, so
+  everything serializes on one GPU.
+- **Online speaker tracking** keeps identities stable across chunks:
+  cluster each chunk locally, match cluster centroids against running
+  global centroids, mint a new id only when nothing is close. First
+  attempt reused the dendrogram threshold (0.75) for centroid matching
+  and merged both speakers of mix_000 into one; centroids are denoised
+  means, so cross-speaker centroid distances run far below window-level
+  linkage distances. Measured the actual separation on the benchmark
+  mixtures (same-speaker 0.20-0.42, different-speaker 0.58+) and set
+  the centroid threshold to 0.50, the midpoint with margin. After the
+  fix, streaming mix_000 attributes every utterance to the right
+  speaker with stable ids end to end.
+- Found and fixed a phantom-speaker bug along the way: a chunk with
+  detectable speech but no decodable words minted an id that never
+  recurred. The tracker now only sees chunks that produced words.
+  Boundary slivers can still orphan an id (documented, cosmetic).
+- The known limits are in the module docstring and on the page itself:
+  chunk boundaries split words, and concurrent speech still logs one
+  speaker at a time, exactly as the overlap benchmark predicts.
+
 ## 2026-06-04: domain recalibration and the demo reference toggle
 
 - **Recalibrated on AMI dev meetings** (`fetch-ami --dev`, then

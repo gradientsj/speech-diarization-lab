@@ -89,10 +89,41 @@ def _stream_from_env() -> StreamFn:
     return run
 
 
-def create_app(attribute_fn: AttributeFn | None = None, stream_fn: StreamFn | None = None):
+def _live_session_from_env():
+    """A LiveSession over the real models, configured from the environment."""
+    import numpy as np
+
+    from .asr import transcribe_array
+    from .diarize import ClusteredConfig
+    from .embeddings import EcapaEmbedder
+    from .live import LiveSession
+    from .vad import detect_speech
+
+    model = os.environ.get("DIARLAB_MODEL", "small")
+    device = os.environ.get("DIARLAB_DEVICE", "cpu")
+    compute = os.environ.get("DIARLAB_COMPUTE", "int8")
+    embedder = EcapaEmbedder(device=device)
+
+    return LiveSession(
+        vad_fn=lambda chunk: detect_speech(chunk, 16_000),
+        embed_fn=lambda chunk, windows: embedder.embed_windows(
+            np.asarray(chunk), 16_000, windows
+        ),
+        transcribe_fn=lambda chunk: transcribe_array(
+            chunk, model_size=model, device=device, compute_type=compute
+        ),
+        config=ClusteredConfig(device=device),
+    )
+
+
+def create_app(
+    attribute_fn: AttributeFn | None = None,
+    stream_fn: StreamFn | None = None,
+    live_session_factory=None,
+):
     try:
         from fastapi import FastAPI, File, HTTPException, UploadFile, WebSocket
-        from fastapi.responses import PlainTextResponse
+        from fastapi.responses import HTMLResponse, PlainTextResponse
     except ImportError as exc:  # pragma: no cover - exercised only without extras
         raise ImportError(
             "fastapi is not installed; install the serving layer with `uv sync --extra serve`"
@@ -202,6 +233,65 @@ def create_app(attribute_fn: AttributeFn | None = None, stream_fn: StreamFn | No
                 break
             await asyncio.sleep(0.05)
         await websocket.close()
+
+    @app.get("/live", response_class=HTMLResponse)
+    def live_page() -> str:
+        return (Path(__file__).parent / "static" / "live.html").read_text(encoding="utf-8")
+
+    @app.websocket("/live/ws")
+    async def live_ws(websocket: WebSocket) -> None:
+        """Near-real-time mode: int16 PCM in, attributed segments out.
+
+        Protocol: the client sends one JSON text frame {"sample_rate": N},
+        then binary int16 mono PCM frames at that rate; a text frame
+        {"type": "stop"} flushes the tail. The server resamples to 16 kHz,
+        processes rolling chunks, and pushes one JSON event per attributed
+        segment. Inference runs on the shared single worker so live audio
+        and uploaded jobs serialize on the same GPU.
+        """
+        import numpy as np
+
+        from .audio import resample
+
+        await websocket.accept()
+        try:
+            hello = await websocket.receive_json()
+            source_rate = int(hello.get("sample_rate", 16_000))
+        except Exception:
+            await websocket.send_json({"type": "error", "error": "expected a JSON hello frame"})
+            await websocket.close(code=1003)
+            return
+
+        loop = asyncio.get_running_loop()
+        session = (live_session_factory or _live_session_from_env)()
+        await websocket.send_json({"type": "ready"})
+
+        async def emit(segments) -> None:
+            for segment in segments:
+                payload = segments_to_dict([segment])["segments"][0]
+                await websocket.send_json({"type": "segment", "segment": payload})
+
+        try:
+            while True:
+                message = await websocket.receive()
+                if message.get("bytes") is not None:
+                    pcm = np.frombuffer(message["bytes"], dtype=np.int16)
+                    samples = resample(pcm.astype(np.float32) / 32768.0, source_rate, 16_000)
+                    segments = await loop.run_in_executor(executor, session.feed, samples)
+                    await emit(segments)
+                elif (
+                    message.get("text") is not None
+                    or message.get("type") == "websocket.disconnect"
+                ):
+                    break  # stop request or disconnect: flush below
+        except Exception:
+            pass  # client went away mid-receive; still try to flush
+        try:
+            await emit(await loop.run_in_executor(executor, session.flush))
+            await websocket.send_json({"type": "status", "status": "done"})
+            await websocket.close()
+        except Exception:
+            pass  # nothing to flush to a closed socket
 
     return app
 

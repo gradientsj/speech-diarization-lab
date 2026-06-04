@@ -73,6 +73,30 @@ def transcribe_stream(
             yield words
 
 
+def transcribe_array(
+    audio,
+    model_size: str = "small",
+    device: str = "cpu",
+    compute_type: str = "int8",
+    beam_size: int = 5,
+    language: str | None = None,
+) -> list[Word]:
+    """Words for an in-memory mono float32 16 kHz array (the live path)."""
+    model = _model(model_size, device, compute_type)
+    segments, _info = model.transcribe(
+        audio,
+        beam_size=beam_size,
+        language=language,
+        word_timestamps=True,
+        vad_filter=True,
+    )
+    return [
+        Word(w.start, w.end, w.word.strip(), w.probability)
+        for segment in segments
+        for w in segment.words or []
+    ]
+
+
 def transcribe(
     path: str | Path,
     model_size: str = "small",

@@ -141,3 +141,68 @@ def test_streamed_segments_also_land_in_the_rest_result():
     job_id = client.post("/jobs", files={"file": ("a.wav", b"x", "audio/wav")}).json()["id"]
     body = _wait_done(client, job_id)
     assert [s["text"] for s in body["result"]["segments"]] == ["hello", "world"]
+
+
+class _StubLiveSession:
+    """Counts fed samples; emits one segment per feed call, one on flush."""
+
+    def __init__(self):
+        self.fed = 0
+        self.calls = 0
+
+    def feed(self, samples):
+        self.fed += len(samples)
+        self.calls += 1
+        return [
+            Segment(0.0, 1.0, f"SPEAKER_{self.calls - 1:02d}", f"feed{self.calls - 1}", words=[])
+        ]
+
+    def flush(self):
+        return [Segment(9.0, 9.5, "SPEAKER_00", "tail", words=[])]
+
+
+def _live_client(sessions):
+    def factory():
+        sessions.append(_StubLiveSession())
+        return sessions[-1]
+
+    return TestClient(create_app(attribute_fn=_stub_segments, live_session_factory=factory))
+
+
+def test_live_websocket_round_trip():
+    import numpy as np
+
+    sessions = []
+    client = _live_client(sessions)
+    with client.websocket_connect("/live/ws") as ws:
+        ws.send_json({"sample_rate": 16_000})
+        assert ws.receive_json() == {"type": "ready"}
+        ws.send_bytes(np.zeros(16_000, dtype=np.int16).tobytes())
+        msg = ws.receive_json()
+        assert msg["type"] == "segment"
+        assert msg["segment"]["text"] == "feed0"
+        ws.send_json({"type": "stop"})
+        assert ws.receive_json()["segment"]["text"] == "tail"
+        assert ws.receive_json() == {"type": "status", "status": "done"}
+    assert sessions[0].fed == 16_000  # 1s at 16 kHz arrives unresampled
+
+
+def test_live_websocket_resamples_to_16k():
+    import numpy as np
+
+    sessions = []
+    client = _live_client(sessions)
+    with client.websocket_connect("/live/ws") as ws:
+        ws.send_json({"sample_rate": 48_000})
+        ws.receive_json()
+        ws.send_bytes(np.zeros(48_000, dtype=np.int16).tobytes())
+        ws.receive_json()
+        ws.send_json({"type": "stop"})
+    assert sessions[0].fed == 16_000  # 1s at 48 kHz lands as 1s at 16 kHz
+
+
+def test_live_page_served():
+    client = TestClient(create_app(attribute_fn=_stub_segments))
+    resp = client.get("/live")
+    assert resp.status_code == 200
+    assert "diarlab live" in resp.text
