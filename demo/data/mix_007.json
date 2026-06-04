@@ -1,0 +1,1232 @@
+{
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 8.32,
+      "speaker": "SPEAKER_00",
+      "text": "She stood for a moment on the hearth, and in sad, dreamy mood listened to the howling swoops of the wind, making the house quiver and shake.",
+      "words": [
+        {
+          "start": 0.0,
+          "end": 0.5,
+          "text": "She",
+          "probability": 0.52
+        },
+        {
+          "start": 0.5,
+          "end": 0.78,
+          "text": "stood",
+          "probability": 0.988
+        },
+        {
+          "start": 0.78,
+          "end": 0.98,
+          "text": "for",
+          "probability": 0.992
+        },
+        {
+          "start": 0.98,
+          "end": 1.14,
+          "text": "a",
+          "probability": 0.997
+        },
+        {
+          "start": 1.14,
+          "end": 1.32,
+          "text": "moment",
+          "probability": 0.997
+        },
+        {
+          "start": 1.32,
+          "end": 1.54,
+          "text": "on",
+          "probability": 0.994
+        },
+        {
+          "start": 1.54,
+          "end": 1.66,
+          "text": "the",
+          "probability": 0.994
+        },
+        {
+          "start": 1.66,
+          "end": 2.12,
+          "text": "hearth,",
+          "probability": 0.974
+        },
+        {
+          "start": 2.3,
+          "end": 2.6,
+          "text": "and",
+          "probability": 0.85
+        },
+        {
+          "start": 2.6,
+          "end": 2.76,
+          "text": "in",
+          "probability": 0.914
+        },
+        {
+          "start": 2.76,
+          "end": 3.22,
+          "text": "sad,",
+          "probability": 0.944
+        },
+        {
+          "start": 3.44,
+          "end": 3.82,
+          "text": "dreamy",
+          "probability": 0.993
+        },
+        {
+          "start": 3.82,
+          "end": 4.12,
+          "text": "mood",
+          "probability": 0.988
+        },
+        {
+          "start": 4.12,
+          "end": 4.56,
+          "text": "listened",
+          "probability": 0.448
+        },
+        {
+          "start": 4.56,
+          "end": 4.92,
+          "text": "to",
+          "probability": 0.99
+        },
+        {
+          "start": 4.92,
+          "end": 5.04,
+          "text": "the",
+          "probability": 0.981
+        },
+        {
+          "start": 5.04,
+          "end": 5.42,
+          "text": "howling",
+          "probability": 0.995
+        },
+        {
+          "start": 5.42,
+          "end": 5.92,
+          "text": "swoops",
+          "probability": 0.981
+        },
+        {
+          "start": 5.92,
+          "end": 6.1,
+          "text": "of",
+          "probability": 0.998
+        },
+        {
+          "start": 6.1,
+          "end": 6.22,
+          "text": "the",
+          "probability": 0.996
+        },
+        {
+          "start": 6.22,
+          "end": 6.52,
+          "text": "wind,",
+          "probability": 0.997
+        },
+        {
+          "start": 6.7,
+          "end": 6.94,
+          "text": "making",
+          "probability": 0.986
+        },
+        {
+          "start": 6.94,
+          "end": 7.18,
+          "text": "the",
+          "probability": 0.997
+        },
+        {
+          "start": 7.18,
+          "end": 7.36,
+          "text": "house",
+          "probability": 0.994
+        },
+        {
+          "start": 7.36,
+          "end": 7.78,
+          "text": "quiver",
+          "probability": 0.996
+        },
+        {
+          "start": 7.78,
+          "end": 8.0,
+          "text": "and",
+          "probability": 0.985
+        },
+        {
+          "start": 8.0,
+          "end": 8.32,
+          "text": "shake.",
+          "probability": 0.987
+        }
+      ]
+    },
+    {
+      "start": 9.92,
+      "end": 17.82,
+      "speaker": "SPEAKER_01",
+      "text": "He had been a clerk in a banking -house, and was transported for embezzlement, though by some grave doubts as to his guilt were entertained.",
+      "words": [
+        {
+          "start": 9.92,
+          "end": 10.22,
+          "text": "He",
+          "probability": 0.874
+        },
+        {
+          "start": 10.22,
+          "end": 10.36,
+          "text": "had",
+          "probability": 0.986
+        },
+        {
+          "start": 10.36,
+          "end": 10.46,
+          "text": "been",
+          "probability": 0.997
+        },
+        {
+          "start": 10.46,
+          "end": 10.58,
+          "text": "a",
+          "probability": 0.991
+        },
+        {
+          "start": 10.58,
+          "end": 10.84,
+          "text": "clerk",
+          "probability": 0.993
+        },
+        {
+          "start": 10.84,
+          "end": 11.04,
+          "text": "in",
+          "probability": 0.986
+        },
+        {
+          "start": 11.04,
+          "end": 11.16,
+          "text": "a",
+          "probability": 0.998
+        },
+        {
+          "start": 11.16,
+          "end": 11.48,
+          "text": "banking",
+          "probability": 0.995
+        },
+        {
+          "start": 11.48,
+          "end": 11.86,
+          "text": "-house,",
+          "probability": 0.781
+        },
+        {
+          "start": 12.16,
+          "end": 12.44,
+          "text": "and",
+          "probability": 0.996
+        },
+        {
+          "start": 12.44,
+          "end": 12.58,
+          "text": "was",
+          "probability": 0.999
+        },
+        {
+          "start": 12.58,
+          "end": 13.14,
+          "text": "transported",
+          "probability": 0.996
+        },
+        {
+          "start": 13.14,
+          "end": 13.48,
+          "text": "for",
+          "probability": 0.995
+        },
+        {
+          "start": 13.48,
+          "end": 14.02,
+          "text": "embezzlement,",
+          "probability": 0.977
+        },
+        {
+          "start": 14.5,
+          "end": 14.72,
+          "text": "though",
+          "probability": 0.989
+        },
+        {
+          "start": 14.72,
+          "end": 14.92,
+          "text": "by",
+          "probability": 0.948
+        },
+        {
+          "start": 14.92,
+          "end": 15.28,
+          "text": "some",
+          "probability": 0.989
+        },
+        {
+          "start": 15.28,
+          "end": 15.66,
+          "text": "grave",
+          "probability": 0.735
+        },
+        {
+          "start": 15.66,
+          "end": 16.16,
+          "text": "doubts",
+          "probability": 0.986
+        },
+        {
+          "start": 16.16,
+          "end": 16.5,
+          "text": "as",
+          "probability": 0.979
+        },
+        {
+          "start": 16.5,
+          "end": 16.66,
+          "text": "to",
+          "probability": 0.996
+        },
+        {
+          "start": 16.66,
+          "end": 16.78,
+          "text": "his",
+          "probability": 0.98
+        },
+        {
+          "start": 16.78,
+          "end": 17.08,
+          "text": "guilt",
+          "probability": 0.998
+        },
+        {
+          "start": 17.08,
+          "end": 17.32,
+          "text": "were",
+          "probability": 0.996
+        },
+        {
+          "start": 17.32,
+          "end": 17.82,
+          "text": "entertained.",
+          "probability": 0.982
+        }
+      ]
+    },
+    {
+      "start": 19.9,
+      "end": 24.98,
+      "speaker": "SPEAKER_00",
+      "text": "This was her dream, as nearly as she could recall it, when she came to herself after waking from it with a cry.",
+      "words": [
+        {
+          "start": 19.9,
+          "end": 20.18,
+          "text": "This",
+          "probability": 0.934
+        },
+        {
+          "start": 20.18,
+          "end": 20.34,
+          "text": "was",
+          "probability": 0.999
+        },
+        {
+          "start": 20.34,
+          "end": 20.5,
+          "text": "her",
+          "probability": 0.998
+        },
+        {
+          "start": 20.5,
+          "end": 20.86,
+          "text": "dream,",
+          "probability": 0.999
+        },
+        {
+          "start": 21.04,
+          "end": 21.16,
+          "text": "as",
+          "probability": 0.991
+        },
+        {
+          "start": 21.16,
+          "end": 21.42,
+          "text": "nearly",
+          "probability": 0.987
+        },
+        {
+          "start": 21.42,
+          "end": 21.62,
+          "text": "as",
+          "probability": 0.997
+        },
+        {
+          "start": 21.62,
+          "end": 21.78,
+          "text": "she",
+          "probability": 0.998
+        },
+        {
+          "start": 21.78,
+          "end": 21.92,
+          "text": "could",
+          "probability": 0.992
+        },
+        {
+          "start": 21.92,
+          "end": 22.26,
+          "text": "recall",
+          "probability": 0.998
+        },
+        {
+          "start": 22.26,
+          "end": 22.52,
+          "text": "it,",
+          "probability": 0.993
+        },
+        {
+          "start": 22.62,
+          "end": 22.7,
+          "text": "when",
+          "probability": 0.997
+        },
+        {
+          "start": 22.7,
+          "end": 22.84,
+          "text": "she",
+          "probability": 0.998
+        },
+        {
+          "start": 22.84,
+          "end": 23.06,
+          "text": "came",
+          "probability": 0.998
+        },
+        {
+          "start": 23.06,
+          "end": 23.24,
+          "text": "to",
+          "probability": 0.996
+        },
+        {
+          "start": 23.24,
+          "end": 23.52,
+          "text": "herself",
+          "probability": 0.992
+        },
+        {
+          "start": 23.52,
+          "end": 23.88,
+          "text": "after",
+          "probability": 0.979
+        },
+        {
+          "start": 23.88,
+          "end": 24.14,
+          "text": "waking",
+          "probability": 0.971
+        },
+        {
+          "start": 24.14,
+          "end": 24.42,
+          "text": "from",
+          "probability": 0.997
+        },
+        {
+          "start": 24.42,
+          "end": 24.56,
+          "text": "it",
+          "probability": 0.999
+        },
+        {
+          "start": 24.56,
+          "end": 24.66,
+          "text": "with",
+          "probability": 0.998
+        },
+        {
+          "start": 24.66,
+          "end": 24.78,
+          "text": "a",
+          "probability": 0.999
+        },
+        {
+          "start": 24.78,
+          "end": 24.98,
+          "text": "cry.",
+          "probability": 0.996
+        }
+      ]
+    },
+    {
+      "start": 26.62,
+      "end": 33.54,
+      "speaker": "SPEAKER_01",
+      "text": "I'm not to go in there, says the ex -bank clerk, drawing back in dismay from the cloud of foul faces which lowered upon him.",
+      "words": [
+        {
+          "start": 26.62,
+          "end": 27.12,
+          "text": "I'm",
+          "probability": 0.444
+        },
+        {
+          "start": 27.12,
+          "end": 27.24,
+          "text": "not",
+          "probability": 0.935
+        },
+        {
+          "start": 27.24,
+          "end": 27.4,
+          "text": "to",
+          "probability": 0.982
+        },
+        {
+          "start": 27.4,
+          "end": 27.54,
+          "text": "go",
+          "probability": 0.995
+        },
+        {
+          "start": 27.54,
+          "end": 27.66,
+          "text": "in",
+          "probability": 0.995
+        },
+        {
+          "start": 27.66,
+          "end": 27.84,
+          "text": "there,",
+          "probability": 0.99
+        },
+        {
+          "start": 27.96,
+          "end": 28.08,
+          "text": "says",
+          "probability": 0.958
+        },
+        {
+          "start": 28.08,
+          "end": 28.34,
+          "text": "the",
+          "probability": 0.993
+        },
+        {
+          "start": 28.34,
+          "end": 28.58,
+          "text": "ex",
+          "probability": 0.952
+        },
+        {
+          "start": 28.58,
+          "end": 28.82,
+          "text": "-bank",
+          "probability": 0.855
+        },
+        {
+          "start": 28.82,
+          "end": 29.18,
+          "text": "clerk,",
+          "probability": 0.982
+        },
+        {
+          "start": 29.44,
+          "end": 29.68,
+          "text": "drawing",
+          "probability": 0.993
+        },
+        {
+          "start": 29.68,
+          "end": 30.02,
+          "text": "back",
+          "probability": 0.996
+        },
+        {
+          "start": 30.02,
+          "end": 30.22,
+          "text": "in",
+          "probability": 0.611
+        },
+        {
+          "start": 30.22,
+          "end": 30.54,
+          "text": "dismay",
+          "probability": 0.989
+        },
+        {
+          "start": 30.54,
+          "end": 30.78,
+          "text": "from",
+          "probability": 0.934
+        },
+        {
+          "start": 30.78,
+          "end": 30.94,
+          "text": "the",
+          "probability": 0.992
+        },
+        {
+          "start": 30.94,
+          "end": 31.62,
+          "text": "cloud",
+          "probability": 0.962
+        },
+        {
+          "start": 31.62,
+          "end": 31.78,
+          "text": "of",
+          "probability": 0.91
+        },
+        {
+          "start": 31.78,
+          "end": 32.04,
+          "text": "foul",
+          "probability": 0.98
+        },
+        {
+          "start": 32.04,
+          "end": 32.42,
+          "text": "faces",
+          "probability": 0.899
+        },
+        {
+          "start": 32.42,
+          "end": 32.72,
+          "text": "which",
+          "probability": 0.975
+        },
+        {
+          "start": 32.72,
+          "end": 32.96,
+          "text": "lowered",
+          "probability": 0.793
+        },
+        {
+          "start": 32.96,
+          "end": 33.28,
+          "text": "upon",
+          "probability": 0.994
+        },
+        {
+          "start": 33.28,
+          "end": 33.54,
+          "text": "him.",
+          "probability": 0.995
+        }
+      ]
+    },
+    {
+      "start": 34.68,
+      "end": 41.52,
+      "speaker": "SPEAKER_00",
+      "text": "She was one of a large company at a house where she had never been before, a beautiful house with a large garden behind.",
+      "words": [
+        {
+          "start": 34.68,
+          "end": 35.18,
+          "text": "She",
+          "probability": 0.823
+        },
+        {
+          "start": 35.18,
+          "end": 35.36,
+          "text": "was",
+          "probability": 0.998
+        },
+        {
+          "start": 35.36,
+          "end": 35.58,
+          "text": "one",
+          "probability": 0.986
+        },
+        {
+          "start": 35.58,
+          "end": 35.68,
+          "text": "of",
+          "probability": 0.997
+        },
+        {
+          "start": 35.68,
+          "end": 35.82,
+          "text": "a",
+          "probability": 0.992
+        },
+        {
+          "start": 35.82,
+          "end": 36.04,
+          "text": "large",
+          "probability": 0.996
+        },
+        {
+          "start": 36.04,
+          "end": 36.56,
+          "text": "company",
+          "probability": 0.993
+        },
+        {
+          "start": 36.56,
+          "end": 36.8,
+          "text": "at",
+          "probability": 0.883
+        },
+        {
+          "start": 36.8,
+          "end": 36.92,
+          "text": "a",
+          "probability": 0.99
+        },
+        {
+          "start": 36.92,
+          "end": 37.22,
+          "text": "house",
+          "probability": 0.997
+        },
+        {
+          "start": 37.22,
+          "end": 37.4,
+          "text": "where",
+          "probability": 0.936
+        },
+        {
+          "start": 37.4,
+          "end": 37.56,
+          "text": "she",
+          "probability": 0.996
+        },
+        {
+          "start": 37.56,
+          "end": 37.68,
+          "text": "had",
+          "probability": 0.982
+        },
+        {
+          "start": 37.68,
+          "end": 37.92,
+          "text": "never",
+          "probability": 0.997
+        },
+        {
+          "start": 37.92,
+          "end": 38.14,
+          "text": "been",
+          "probability": 0.996
+        },
+        {
+          "start": 38.14,
+          "end": 38.5,
+          "text": "before,",
+          "probability": 0.998
+        },
+        {
+          "start": 39.06,
+          "end": 39.18,
+          "text": "a",
+          "probability": 0.99
+        },
+        {
+          "start": 39.18,
+          "end": 39.48,
+          "text": "beautiful",
+          "probability": 0.994
+        },
+        {
+          "start": 39.48,
+          "end": 40.04,
+          "text": "house",
+          "probability": 0.997
+        },
+        {
+          "start": 40.04,
+          "end": 40.3,
+          "text": "with",
+          "probability": 0.871
+        },
+        {
+          "start": 40.3,
+          "end": 40.46,
+          "text": "a",
+          "probability": 0.994
+        },
+        {
+          "start": 40.46,
+          "end": 40.72,
+          "text": "large",
+          "probability": 0.998
+        },
+        {
+          "start": 40.72,
+          "end": 41.1,
+          "text": "garden",
+          "probability": 0.999
+        },
+        {
+          "start": 41.1,
+          "end": 41.52,
+          "text": "behind.",
+          "probability": 0.997
+        }
+      ]
+    },
+    {
+      "start": 42.9,
+      "end": 48.24,
+      "speaker": "SPEAKER_01",
+      "text": "What is he more than anybody else, said the wretched man to himself, as he hugged his misery close?",
+      "words": [
+        {
+          "start": 42.9,
+          "end": 43.4,
+          "text": "What",
+          "probability": 0.822
+        },
+        {
+          "start": 43.4,
+          "end": 43.56,
+          "text": "is",
+          "probability": 0.962
+        },
+        {
+          "start": 43.56,
+          "end": 43.7,
+          "text": "he",
+          "probability": 0.994
+        },
+        {
+          "start": 43.7,
+          "end": 43.92,
+          "text": "more",
+          "probability": 0.986
+        },
+        {
+          "start": 43.92,
+          "end": 44.08,
+          "text": "than",
+          "probability": 0.995
+        },
+        {
+          "start": 44.08,
+          "end": 44.46,
+          "text": "anybody",
+          "probability": 0.95
+        },
+        {
+          "start": 44.46,
+          "end": 44.78,
+          "text": "else,",
+          "probability": 0.994
+        },
+        {
+          "start": 44.98,
+          "end": 45.16,
+          "text": "said",
+          "probability": 0.992
+        },
+        {
+          "start": 45.16,
+          "end": 45.3,
+          "text": "the",
+          "probability": 0.996
+        },
+        {
+          "start": 45.3,
+          "end": 45.5,
+          "text": "wretched",
+          "probability": 0.984
+        },
+        {
+          "start": 45.5,
+          "end": 45.82,
+          "text": "man",
+          "probability": 0.995
+        },
+        {
+          "start": 45.82,
+          "end": 46.02,
+          "text": "to",
+          "probability": 0.965
+        },
+        {
+          "start": 46.02,
+          "end": 46.4,
+          "text": "himself,",
+          "probability": 0.996
+        },
+        {
+          "start": 46.82,
+          "end": 47.02,
+          "text": "as",
+          "probability": 0.996
+        },
+        {
+          "start": 47.02,
+          "end": 47.14,
+          "text": "he",
+          "probability": 0.996
+        },
+        {
+          "start": 47.14,
+          "end": 47.44,
+          "text": "hugged",
+          "probability": 0.99
+        },
+        {
+          "start": 47.44,
+          "end": 47.56,
+          "text": "his",
+          "probability": 0.991
+        },
+        {
+          "start": 47.56,
+          "end": 47.88,
+          "text": "misery",
+          "probability": 0.991
+        },
+        {
+          "start": 47.88,
+          "end": 48.24,
+          "text": "close?",
+          "probability": 0.993
+        }
+      ]
+    },
+    {
+      "start": 50.53,
+      "end": 60.61,
+      "speaker": "SPEAKER_02",
+      "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his Gospel. Nor is Mr. Quilter's manner less interesting than his matter.",
+      "words": [
+        {
+          "start": 50.53,
+          "end": 50.89,
+          "text": "Mr.",
+          "probability": 0.917
+        },
+        {
+          "start": 51.03,
+          "end": 51.29,
+          "text": "Quilter",
+          "probability": 0.915
+        },
+        {
+          "start": 51.29,
+          "end": 51.55,
+          "text": "is",
+          "probability": 0.994
+        },
+        {
+          "start": 51.55,
+          "end": 51.67,
+          "text": "the",
+          "probability": 0.994
+        },
+        {
+          "start": 51.67,
+          "end": 52.05,
+          "text": "apostle",
+          "probability": 0.771
+        },
+        {
+          "start": 52.05,
+          "end": 52.39,
+          "text": "of",
+          "probability": 0.998
+        },
+        {
+          "start": 52.39,
+          "end": 52.53,
+          "text": "the",
+          "probability": 0.995
+        },
+        {
+          "start": 52.53,
+          "end": 52.69,
+          "text": "middle",
+          "probability": 0.729
+        },
+        {
+          "start": 52.69,
+          "end": 53.13,
+          "text": "classes,",
+          "probability": 0.832
+        },
+        {
+          "start": 53.47,
+          "end": 53.59,
+          "text": "and",
+          "probability": 0.998
+        },
+        {
+          "start": 53.59,
+          "end": 53.73,
+          "text": "we",
+          "probability": 0.998
+        },
+        {
+          "start": 53.73,
+          "end": 53.81,
+          "text": "are",
+          "probability": 0.957
+        },
+        {
+          "start": 53.81,
+          "end": 54.07,
+          "text": "glad",
+          "probability": 0.992
+        },
+        {
+          "start": 54.07,
+          "end": 54.35,
+          "text": "to",
+          "probability": 0.998
+        },
+        {
+          "start": 54.35,
+          "end": 54.63,
+          "text": "welcome",
+          "probability": 0.999
+        },
+        {
+          "start": 54.63,
+          "end": 54.93,
+          "text": "his",
+          "probability": 0.983
+        },
+        {
+          "start": 54.93,
+          "end": 55.39,
+          "text": "Gospel.",
+          "probability": 0.209
+        },
+        {
+          "start": 56.37,
+          "end": 57.13,
+          "text": "Nor",
+          "probability": 0.476
+        },
+        {
+          "start": 57.13,
+          "end": 57.41,
+          "text": "is",
+          "probability": 0.99
+        },
+        {
+          "start": 57.41,
+          "end": 57.71,
+          "text": "Mr.",
+          "probability": 0.971
+        },
+        {
+          "start": 57.83,
+          "end": 58.23,
+          "text": "Quilter's",
+          "probability": 0.928
+        },
+        {
+          "start": 58.23,
+          "end": 58.51,
+          "text": "manner",
+          "probability": 0.97
+        },
+        {
+          "start": 58.51,
+          "end": 58.89,
+          "text": "less",
+          "probability": 0.994
+        },
+        {
+          "start": 58.89,
+          "end": 59.57,
+          "text": "interesting",
+          "probability": 0.993
+        },
+        {
+          "start": 59.57,
+          "end": 59.85,
+          "text": "than",
+          "probability": 0.984
+        },
+        {
+          "start": 59.85,
+          "end": 60.15,
+          "text": "his",
+          "probability": 0.993
+        },
+        {
+          "start": 60.15,
+          "end": 60.61,
+          "text": "matter.",
+          "probability": 0.701
+        }
+      ]
+    },
+    {
+      "start": 62.57,
+      "end": 71.47,
+      "speaker": "SPEAKER_02",
+      "text": "He has grave doubts whether Sir Frederick Layton's work is really Greek after all, and can discover in it but little of rocky Ithaca.",
+      "words": [
+        {
+          "start": 62.57,
+          "end": 62.97,
+          "text": "He",
+          "probability": 0.985
+        },
+        {
+          "start": 62.97,
+          "end": 63.13,
+          "text": "has",
+          "probability": 0.992
+        },
+        {
+          "start": 63.13,
+          "end": 63.43,
+          "text": "grave",
+          "probability": 0.819
+        },
+        {
+          "start": 63.43,
+          "end": 63.81,
+          "text": "doubts",
+          "probability": 0.998
+        },
+        {
+          "start": 63.81,
+          "end": 64.25,
+          "text": "whether",
+          "probability": 0.938
+        },
+        {
+          "start": 64.25,
+          "end": 64.63,
+          "text": "Sir",
+          "probability": 0.972
+        },
+        {
+          "start": 64.63,
+          "end": 64.93,
+          "text": "Frederick",
+          "probability": 0.919
+        },
+        {
+          "start": 64.93,
+          "end": 65.53,
+          "text": "Layton's",
+          "probability": 0.933
+        },
+        {
+          "start": 65.53,
+          "end": 65.75,
+          "text": "work",
+          "probability": 0.992
+        },
+        {
+          "start": 65.75,
+          "end": 66.05,
+          "text": "is",
+          "probability": 0.993
+        },
+        {
+          "start": 66.05,
+          "end": 66.43,
+          "text": "really",
+          "probability": 0.971
+        },
+        {
+          "start": 66.43,
+          "end": 66.91,
+          "text": "Greek",
+          "probability": 0.96
+        },
+        {
+          "start": 66.91,
+          "end": 67.35,
+          "text": "after",
+          "probability": 0.954
+        },
+        {
+          "start": 67.35,
+          "end": 67.73,
+          "text": "all,",
+          "probability": 0.995
+        },
+        {
+          "start": 68.29,
+          "end": 68.51,
+          "text": "and",
+          "probability": 0.995
+        },
+        {
+          "start": 68.51,
+          "end": 68.69,
+          "text": "can",
+          "probability": 0.998
+        },
+        {
+          "start": 68.69,
+          "end": 69.11,
+          "text": "discover",
+          "probability": 0.979
+        },
+        {
+          "start": 69.11,
+          "end": 69.39,
+          "text": "in",
+          "probability": 0.987
+        },
+        {
+          "start": 69.39,
+          "end": 69.53,
+          "text": "it",
+          "probability": 0.995
+        },
+        {
+          "start": 69.53,
+          "end": 69.75,
+          "text": "but",
+          "probability": 0.924
+        },
+        {
+          "start": 69.75,
+          "end": 70.11,
+          "text": "little",
+          "probability": 0.999
+        },
+        {
+          "start": 70.11,
+          "end": 70.41,
+          "text": "of",
+          "probability": 0.995
+        },
+        {
+          "start": 70.41,
+          "end": 70.95,
+          "text": "rocky",
+          "probability": 0.619
+        },
+        {
+          "start": 70.95,
+          "end": 71.47,
+          "text": "Ithaca.",
+          "probability": 0.911
+        }
+      ]
+    }
+  ]
+}

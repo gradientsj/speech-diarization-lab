@@ -1,0 +1,880 @@
+{
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.88,
+      "speaker": "SPEAKER_00",
+      "text": "the savage philosopher, the dual mind.",
+      "words": [
+        {
+          "start": 0.0,
+          "end": 0.32,
+          "text": "the",
+          "probability": 0.263
+        },
+        {
+          "start": 0.32,
+          "end": 0.64,
+          "text": "savage",
+          "probability": 0.784
+        },
+        {
+          "start": 0.64,
+          "end": 1.4,
+          "text": "philosopher,",
+          "probability": 0.967
+        },
+        {
+          "start": 2.14,
+          "end": 2.2,
+          "text": "the",
+          "probability": 0.989
+        },
+        {
+          "start": 2.2,
+          "end": 2.46,
+          "text": "dual",
+          "probability": 0.948
+        },
+        {
+          "start": 2.46,
+          "end": 2.88,
+          "text": "mind.",
+          "probability": 0.854
+        }
+      ]
+    },
+    {
+      "start": 3.88,
+      "end": 10.06,
+      "speaker": "SPEAKER_01",
+      "text": "How infinite the wealth of love and hope garnered in these same tiny treasure houses, and oh.",
+      "words": [
+        {
+          "start": 3.88,
+          "end": 4.48,
+          "text": "How",
+          "probability": 0.486
+        },
+        {
+          "start": 4.48,
+          "end": 4.9,
+          "text": "infinite",
+          "probability": 0.95
+        },
+        {
+          "start": 4.9,
+          "end": 5.16,
+          "text": "the",
+          "probability": 0.989
+        },
+        {
+          "start": 5.16,
+          "end": 5.42,
+          "text": "wealth",
+          "probability": 0.995
+        },
+        {
+          "start": 5.42,
+          "end": 5.66,
+          "text": "of",
+          "probability": 0.929
+        },
+        {
+          "start": 5.66,
+          "end": 5.92,
+          "text": "love",
+          "probability": 0.988
+        },
+        {
+          "start": 5.92,
+          "end": 6.1,
+          "text": "and",
+          "probability": 0.992
+        },
+        {
+          "start": 6.1,
+          "end": 6.42,
+          "text": "hope",
+          "probability": 0.995
+        },
+        {
+          "start": 6.42,
+          "end": 6.84,
+          "text": "garnered",
+          "probability": 0.998
+        },
+        {
+          "start": 6.84,
+          "end": 7.0,
+          "text": "in",
+          "probability": 0.989
+        },
+        {
+          "start": 7.0,
+          "end": 7.16,
+          "text": "these",
+          "probability": 0.964
+        },
+        {
+          "start": 7.16,
+          "end": 7.56,
+          "text": "same",
+          "probability": 0.976
+        },
+        {
+          "start": 7.56,
+          "end": 8.02,
+          "text": "tiny",
+          "probability": 0.958
+        },
+        {
+          "start": 8.02,
+          "end": 8.3,
+          "text": "treasure",
+          "probability": 0.959
+        },
+        {
+          "start": 8.3,
+          "end": 8.88,
+          "text": "houses,",
+          "probability": 0.739
+        },
+        {
+          "start": 9.58,
+          "end": 9.76,
+          "text": "and",
+          "probability": 0.972
+        },
+        {
+          "start": 9.76,
+          "end": 10.06,
+          "text": "oh.",
+          "probability": 0.494
+        }
+      ]
+    },
+    {
+      "start": 11.14,
+      "end": 19.64,
+      "speaker": "SPEAKER_02",
+      "text": "Grant was only a few miles away, but although the commander -in -chief, he knew nothing of the hardest fought battle of the Civil War until it was over.",
+      "words": [
+        {
+          "start": 11.14,
+          "end": 11.74,
+          "text": "Grant",
+          "probability": 0.889
+        },
+        {
+          "start": 11.74,
+          "end": 11.96,
+          "text": "was",
+          "probability": 0.998
+        },
+        {
+          "start": 11.96,
+          "end": 12.2,
+          "text": "only",
+          "probability": 0.997
+        },
+        {
+          "start": 12.2,
+          "end": 12.38,
+          "text": "a",
+          "probability": 0.998
+        },
+        {
+          "start": 12.38,
+          "end": 12.58,
+          "text": "few",
+          "probability": 1.0
+        },
+        {
+          "start": 12.58,
+          "end": 12.84,
+          "text": "miles",
+          "probability": 0.999
+        },
+        {
+          "start": 12.84,
+          "end": 13.32,
+          "text": "away,",
+          "probability": 0.999
+        },
+        {
+          "start": 13.68,
+          "end": 13.88,
+          "text": "but",
+          "probability": 0.994
+        },
+        {
+          "start": 13.88,
+          "end": 14.16,
+          "text": "although",
+          "probability": 0.926
+        },
+        {
+          "start": 14.16,
+          "end": 14.36,
+          "text": "the",
+          "probability": 0.986
+        },
+        {
+          "start": 14.36,
+          "end": 14.72,
+          "text": "commander",
+          "probability": 0.666
+        },
+        {
+          "start": 14.72,
+          "end": 14.94,
+          "text": "-in",
+          "probability": 0.706
+        },
+        {
+          "start": 14.94,
+          "end": 15.26,
+          "text": "-chief,",
+          "probability": 0.991
+        },
+        {
+          "start": 15.66,
+          "end": 15.8,
+          "text": "he",
+          "probability": 0.995
+        },
+        {
+          "start": 15.8,
+          "end": 16.0,
+          "text": "knew",
+          "probability": 0.999
+        },
+        {
+          "start": 16.0,
+          "end": 16.32,
+          "text": "nothing",
+          "probability": 0.991
+        },
+        {
+          "start": 16.32,
+          "end": 16.62,
+          "text": "of",
+          "probability": 0.997
+        },
+        {
+          "start": 16.62,
+          "end": 16.72,
+          "text": "the",
+          "probability": 0.998
+        },
+        {
+          "start": 16.72,
+          "end": 16.98,
+          "text": "hardest",
+          "probability": 0.992
+        },
+        {
+          "start": 16.98,
+          "end": 17.28,
+          "text": "fought",
+          "probability": 0.62
+        },
+        {
+          "start": 17.28,
+          "end": 17.7,
+          "text": "battle",
+          "probability": 0.996
+        },
+        {
+          "start": 17.7,
+          "end": 17.92,
+          "text": "of",
+          "probability": 0.998
+        },
+        {
+          "start": 17.92,
+          "end": 18.04,
+          "text": "the",
+          "probability": 0.994
+        },
+        {
+          "start": 18.04,
+          "end": 18.24,
+          "text": "Civil",
+          "probability": 0.736
+        },
+        {
+          "start": 18.24,
+          "end": 18.62,
+          "text": "War",
+          "probability": 0.993
+        },
+        {
+          "start": 18.62,
+          "end": 19.12,
+          "text": "until",
+          "probability": 0.904
+        },
+        {
+          "start": 19.12,
+          "end": 19.28,
+          "text": "it",
+          "probability": 0.997
+        },
+        {
+          "start": 19.28,
+          "end": 19.38,
+          "text": "was",
+          "probability": 0.999
+        },
+        {
+          "start": 19.38,
+          "end": 19.64,
+          "text": "over.",
+          "probability": 1.0
+        }
+      ]
+    },
+    {
+      "start": 21.24,
+      "end": 30.0,
+      "speaker": "SPEAKER_01",
+      "text": "What bankrupts in the world we feel when death, like some remorseless creditor, seizes on all we fondly thought our own. The twins.",
+      "words": [
+        {
+          "start": 21.24,
+          "end": 21.84,
+          "text": "What",
+          "probability": 0.922
+        },
+        {
+          "start": 21.84,
+          "end": 22.44,
+          "text": "bankrupts",
+          "probability": 0.78
+        },
+        {
+          "start": 22.44,
+          "end": 22.56,
+          "text": "in",
+          "probability": 0.991
+        },
+        {
+          "start": 22.56,
+          "end": 22.66,
+          "text": "the",
+          "probability": 0.995
+        },
+        {
+          "start": 22.66,
+          "end": 22.84,
+          "text": "world",
+          "probability": 0.996
+        },
+        {
+          "start": 22.84,
+          "end": 23.06,
+          "text": "we",
+          "probability": 0.986
+        },
+        {
+          "start": 23.06,
+          "end": 23.36,
+          "text": "feel",
+          "probability": 0.986
+        },
+        {
+          "start": 23.36,
+          "end": 23.6,
+          "text": "when",
+          "probability": 0.977
+        },
+        {
+          "start": 23.6,
+          "end": 23.94,
+          "text": "death,",
+          "probability": 0.961
+        },
+        {
+          "start": 24.46,
+          "end": 24.58,
+          "text": "like",
+          "probability": 0.976
+        },
+        {
+          "start": 24.58,
+          "end": 24.8,
+          "text": "some",
+          "probability": 0.994
+        },
+        {
+          "start": 24.8,
+          "end": 25.5,
+          "text": "remorseless",
+          "probability": 0.983
+        },
+        {
+          "start": 25.5,
+          "end": 25.92,
+          "text": "creditor,",
+          "probability": 0.967
+        },
+        {
+          "start": 26.0,
+          "end": 26.34,
+          "text": "seizes",
+          "probability": 0.932
+        },
+        {
+          "start": 26.34,
+          "end": 26.64,
+          "text": "on",
+          "probability": 0.981
+        },
+        {
+          "start": 26.64,
+          "end": 26.88,
+          "text": "all",
+          "probability": 0.999
+        },
+        {
+          "start": 26.88,
+          "end": 27.06,
+          "text": "we",
+          "probability": 0.989
+        },
+        {
+          "start": 27.06,
+          "end": 27.56,
+          "text": "fondly",
+          "probability": 0.999
+        },
+        {
+          "start": 27.56,
+          "end": 27.78,
+          "text": "thought",
+          "probability": 0.983
+        },
+        {
+          "start": 27.78,
+          "end": 28.16,
+          "text": "our",
+          "probability": 0.97
+        },
+        {
+          "start": 28.16,
+          "end": 28.54,
+          "text": "own.",
+          "probability": 0.999
+        },
+        {
+          "start": 29.22,
+          "end": 29.74,
+          "text": "The",
+          "probability": 0.492
+        },
+        {
+          "start": 29.74,
+          "end": 30.0,
+          "text": "twins.",
+          "probability": 0.107
+        }
+      ]
+    },
+    {
+      "start": 31.32,
+      "end": 33.46,
+      "speaker": "SPEAKER_03",
+      "text": "You'll all be over if you don't have a care.",
+      "words": [
+        {
+          "start": 31.32,
+          "end": 31.84,
+          "text": "You'll",
+          "probability": 0.807
+        },
+        {
+          "start": 31.84,
+          "end": 32.08,
+          "text": "all",
+          "probability": 0.984
+        },
+        {
+          "start": 32.08,
+          "end": 32.22,
+          "text": "be",
+          "probability": 0.998
+        },
+        {
+          "start": 32.22,
+          "end": 32.52,
+          "text": "over",
+          "probability": 0.996
+        },
+        {
+          "start": 32.52,
+          "end": 32.68,
+          "text": "if",
+          "probability": 0.958
+        },
+        {
+          "start": 32.68,
+          "end": 32.78,
+          "text": "you",
+          "probability": 0.996
+        },
+        {
+          "start": 32.78,
+          "end": 32.96,
+          "text": "don't",
+          "probability": 0.998
+        },
+        {
+          "start": 32.96,
+          "end": 33.12,
+          "text": "have",
+          "probability": 0.996
+        },
+        {
+          "start": 33.12,
+          "end": 33.2,
+          "text": "a",
+          "probability": 0.981
+        },
+        {
+          "start": 33.2,
+          "end": 33.46,
+          "text": "care.",
+          "probability": 0.983
+        }
+      ]
+    },
+    {
+      "start": 34.74,
+      "end": 43.96,
+      "speaker": "SPEAKER_00",
+      "text": "The original attitude of the American Indian toward the eternal, the great mystery, that surrounds and embraces us, was as simple as it was exalted.",
+      "words": [
+        {
+          "start": 34.74,
+          "end": 35.26,
+          "text": "The",
+          "probability": 0.961
+        },
+        {
+          "start": 35.26,
+          "end": 35.58,
+          "text": "original",
+          "probability": 0.995
+        },
+        {
+          "start": 35.58,
+          "end": 36.04,
+          "text": "attitude",
+          "probability": 0.995
+        },
+        {
+          "start": 36.04,
+          "end": 36.24,
+          "text": "of",
+          "probability": 0.994
+        },
+        {
+          "start": 36.24,
+          "end": 36.34,
+          "text": "the",
+          "probability": 0.993
+        },
+        {
+          "start": 36.34,
+          "end": 36.64,
+          "text": "American",
+          "probability": 0.992
+        },
+        {
+          "start": 36.64,
+          "end": 37.04,
+          "text": "Indian",
+          "probability": 0.989
+        },
+        {
+          "start": 37.04,
+          "end": 37.34,
+          "text": "toward",
+          "probability": 0.958
+        },
+        {
+          "start": 37.34,
+          "end": 37.52,
+          "text": "the",
+          "probability": 0.992
+        },
+        {
+          "start": 37.52,
+          "end": 37.94,
+          "text": "eternal,",
+          "probability": 0.494
+        },
+        {
+          "start": 38.48,
+          "end": 38.66,
+          "text": "the",
+          "probability": 0.915
+        },
+        {
+          "start": 38.66,
+          "end": 38.86,
+          "text": "great",
+          "probability": 0.728
+        },
+        {
+          "start": 38.86,
+          "end": 39.24,
+          "text": "mystery,",
+          "probability": 0.987
+        },
+        {
+          "start": 39.8,
+          "end": 40.02,
+          "text": "that",
+          "probability": 0.991
+        },
+        {
+          "start": 40.02,
+          "end": 40.38,
+          "text": "surrounds",
+          "probability": 0.997
+        },
+        {
+          "start": 40.38,
+          "end": 40.66,
+          "text": "and",
+          "probability": 0.958
+        },
+        {
+          "start": 40.66,
+          "end": 41.08,
+          "text": "embraces",
+          "probability": 0.998
+        },
+        {
+          "start": 41.08,
+          "end": 41.46,
+          "text": "us,",
+          "probability": 0.997
+        },
+        {
+          "start": 41.92,
+          "end": 42.2,
+          "text": "was",
+          "probability": 0.995
+        },
+        {
+          "start": 42.2,
+          "end": 42.4,
+          "text": "as",
+          "probability": 0.997
+        },
+        {
+          "start": 42.4,
+          "end": 42.76,
+          "text": "simple",
+          "probability": 0.997
+        },
+        {
+          "start": 42.76,
+          "end": 43.12,
+          "text": "as",
+          "probability": 0.998
+        },
+        {
+          "start": 43.12,
+          "end": 43.24,
+          "text": "it",
+          "probability": 0.988
+        },
+        {
+          "start": 43.24,
+          "end": 43.4,
+          "text": "was",
+          "probability": 0.997
+        },
+        {
+          "start": 43.4,
+          "end": 43.96,
+          "text": "exalted.",
+          "probability": 0.972
+        }
+      ]
+    },
+    {
+      "start": 45.54,
+      "end": 47.66,
+      "speaker": "SPEAKER_02",
+      "text": "My own regiment was in the advance.",
+      "words": [
+        {
+          "start": 45.54,
+          "end": 46.06,
+          "text": "My",
+          "probability": 0.96
+        },
+        {
+          "start": 46.06,
+          "end": 46.24,
+          "text": "own",
+          "probability": 0.996
+        },
+        {
+          "start": 46.24,
+          "end": 46.68,
+          "text": "regiment",
+          "probability": 0.906
+        },
+        {
+          "start": 46.68,
+          "end": 46.98,
+          "text": "was",
+          "probability": 0.998
+        },
+        {
+          "start": 46.98,
+          "end": 47.14,
+          "text": "in",
+          "probability": 0.997
+        },
+        {
+          "start": 47.14,
+          "end": 47.26,
+          "text": "the",
+          "probability": 0.978
+        },
+        {
+          "start": 47.26,
+          "end": 47.66,
+          "text": "advance.",
+          "probability": 0.952
+        }
+      ]
+    },
+    {
+      "start": 48.8,
+      "end": 50.08,
+      "speaker": "SPEAKER_04",
+      "text": "Looks like a clump of",
+      "words": [
+        {
+          "start": 48.8,
+          "end": 49.32,
+          "text": "Looks",
+          "probability": 0.953
+        },
+        {
+          "start": 49.32,
+          "end": 49.56,
+          "text": "like",
+          "probability": 0.998
+        },
+        {
+          "start": 49.56,
+          "end": 49.72,
+          "text": "a",
+          "probability": 0.997
+        },
+        {
+          "start": 49.72,
+          "end": 49.9,
+          "text": "clump",
+          "probability": 0.77
+        },
+        {
+          "start": 49.9,
+          "end": 50.08,
+          "text": "of",
+          "probability": 0.997
+        }
+      ]
+    },
+    {
+      "start": 50.08,
+      "end": 52.94,
+      "speaker": "SPEAKER_03",
+      "text": "bushes down there, but I ain't sure. Can you make it out?",
+      "words": [
+        {
+          "start": 50.08,
+          "end": 50.32,
+          "text": "bushes",
+          "probability": 0.995
+        },
+        {
+          "start": 50.32,
+          "end": 50.7,
+          "text": "down",
+          "probability": 0.988
+        },
+        {
+          "start": 50.7,
+          "end": 50.92,
+          "text": "there,",
+          "probability": 0.997
+        },
+        {
+          "start": 51.04,
+          "end": 51.14,
+          "text": "but",
+          "probability": 0.998
+        },
+        {
+          "start": 51.14,
+          "end": 51.32,
+          "text": "I",
+          "probability": 0.991
+        },
+        {
+          "start": 51.32,
+          "end": 51.54,
+          "text": "ain't",
+          "probability": 0.943
+        },
+        {
+          "start": 51.54,
+          "end": 51.8,
+          "text": "sure.",
+          "probability": 0.998
+        },
+        {
+          "start": 52.16,
+          "end": 52.32,
+          "text": "Can",
+          "probability": 0.995
+        },
+        {
+          "start": 52.32,
+          "end": 52.44,
+          "text": "you",
+          "probability": 0.997
+        },
+        {
+          "start": 52.44,
+          "end": 52.6,
+          "text": "make",
+          "probability": 0.999
+        },
+        {
+          "start": 52.6,
+          "end": 52.72,
+          "text": "it",
+          "probability": 0.995
+        },
+        {
+          "start": 52.72,
+          "end": 52.94,
+          "text": "out?",
+          "probability": 0.999
+        }
+      ]
+    }
+  ]
+}

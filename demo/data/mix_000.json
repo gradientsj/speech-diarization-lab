@@ -1,0 +1,896 @@
+{
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.9,
+      "speaker": "SPEAKER_00",
+      "text": "the savage philosopher, the dual mind.",
+      "words": [
+        {
+          "start": 0.0,
+          "end": 0.32,
+          "text": "the",
+          "probability": 0.544
+        },
+        {
+          "start": 0.32,
+          "end": 0.64,
+          "text": "savage",
+          "probability": 0.896
+        },
+        {
+          "start": 0.64,
+          "end": 1.42,
+          "text": "philosopher,",
+          "probability": 0.982
+        },
+        {
+          "start": 2.06,
+          "end": 2.2,
+          "text": "the",
+          "probability": 0.992
+        },
+        {
+          "start": 2.2,
+          "end": 2.46,
+          "text": "dual",
+          "probability": 0.974
+        },
+        {
+          "start": 2.46,
+          "end": 2.9,
+          "text": "mind.",
+          "probability": 0.884
+        }
+      ]
+    },
+    {
+      "start": 4.58,
+      "end": 9.78,
+      "speaker": "SPEAKER_01",
+      "text": "Asparagus Salad Cook the asparagus in salted water, drain, and chill.",
+      "words": [
+        {
+          "start": 4.58,
+          "end": 5.06,
+          "text": "Asparagus",
+          "probability": 0.614
+        },
+        {
+          "start": 5.06,
+          "end": 5.64,
+          "text": "Salad",
+          "probability": 0.664
+        },
+        {
+          "start": 5.64,
+          "end": 6.74,
+          "text": "Cook",
+          "probability": 0.774
+        },
+        {
+          "start": 6.74,
+          "end": 6.98,
+          "text": "the",
+          "probability": 0.984
+        },
+        {
+          "start": 6.98,
+          "end": 7.4,
+          "text": "asparagus",
+          "probability": 0.916
+        },
+        {
+          "start": 7.4,
+          "end": 7.78,
+          "text": "in",
+          "probability": 0.964
+        },
+        {
+          "start": 7.78,
+          "end": 8.1,
+          "text": "salted",
+          "probability": 0.985
+        },
+        {
+          "start": 8.1,
+          "end": 8.46,
+          "text": "water,",
+          "probability": 0.998
+        },
+        {
+          "start": 8.86,
+          "end": 9.06,
+          "text": "drain,",
+          "probability": 0.996
+        },
+        {
+          "start": 9.38,
+          "end": 9.46,
+          "text": "and",
+          "probability": 0.998
+        },
+        {
+          "start": 9.46,
+          "end": 9.78,
+          "text": "chill.",
+          "probability": 0.992
+        }
+      ]
+    },
+    {
+      "start": 10.9,
+      "end": 20.12,
+      "speaker": "SPEAKER_00",
+      "text": "The original attitude of the American Indian toward the eternal, the great mystery, that surrounds and embraces us, was as simple as it was exalted.",
+      "words": [
+        {
+          "start": 10.9,
+          "end": 11.4,
+          "text": "The",
+          "probability": 0.975
+        },
+        {
+          "start": 11.4,
+          "end": 11.7,
+          "text": "original",
+          "probability": 0.996
+        },
+        {
+          "start": 11.7,
+          "end": 12.18,
+          "text": "attitude",
+          "probability": 0.998
+        },
+        {
+          "start": 12.18,
+          "end": 12.38,
+          "text": "of",
+          "probability": 0.991
+        },
+        {
+          "start": 12.38,
+          "end": 12.48,
+          "text": "the",
+          "probability": 0.994
+        },
+        {
+          "start": 12.48,
+          "end": 12.76,
+          "text": "American",
+          "probability": 0.992
+        },
+        {
+          "start": 12.76,
+          "end": 13.18,
+          "text": "Indian",
+          "probability": 0.988
+        },
+        {
+          "start": 13.18,
+          "end": 13.48,
+          "text": "toward",
+          "probability": 0.965
+        },
+        {
+          "start": 13.48,
+          "end": 13.66,
+          "text": "the",
+          "probability": 0.993
+        },
+        {
+          "start": 13.66,
+          "end": 14.06,
+          "text": "eternal,",
+          "probability": 0.785
+        },
+        {
+          "start": 14.7,
+          "end": 14.8,
+          "text": "the",
+          "probability": 0.915
+        },
+        {
+          "start": 14.8,
+          "end": 15.0,
+          "text": "great",
+          "probability": 0.745
+        },
+        {
+          "start": 15.0,
+          "end": 15.38,
+          "text": "mystery,",
+          "probability": 0.992
+        },
+        {
+          "start": 15.94,
+          "end": 16.14,
+          "text": "that",
+          "probability": 0.991
+        },
+        {
+          "start": 16.14,
+          "end": 16.52,
+          "text": "surrounds",
+          "probability": 0.996
+        },
+        {
+          "start": 16.52,
+          "end": 16.8,
+          "text": "and",
+          "probability": 0.962
+        },
+        {
+          "start": 16.8,
+          "end": 17.22,
+          "text": "embraces",
+          "probability": 0.999
+        },
+        {
+          "start": 17.22,
+          "end": 17.6,
+          "text": "us,",
+          "probability": 0.998
+        },
+        {
+          "start": 18.1,
+          "end": 18.32,
+          "text": "was",
+          "probability": 0.995
+        },
+        {
+          "start": 18.32,
+          "end": 18.54,
+          "text": "as",
+          "probability": 0.996
+        },
+        {
+          "start": 18.54,
+          "end": 18.9,
+          "text": "simple",
+          "probability": 0.998
+        },
+        {
+          "start": 18.9,
+          "end": 19.26,
+          "text": "as",
+          "probability": 0.998
+        },
+        {
+          "start": 19.26,
+          "end": 19.38,
+          "text": "it",
+          "probability": 0.986
+        },
+        {
+          "start": 19.38,
+          "end": 19.54,
+          "text": "was",
+          "probability": 0.997
+        },
+        {
+          "start": 19.54,
+          "end": 20.12,
+          "text": "exalted.",
+          "probability": 0.984
+        }
+      ]
+    },
+    {
+      "start": 21.64,
+      "end": 29.28,
+      "speaker": "SPEAKER_01",
+      "text": "Bird's Nest Salad Have ready as many crisp leaves of lettuce as may be required to make a dainty little nest for each person.",
+      "words": [
+        {
+          "start": 21.64,
+          "end": 22.04,
+          "text": "Bird's",
+          "probability": 0.765
+        },
+        {
+          "start": 22.04,
+          "end": 22.2,
+          "text": "Nest",
+          "probability": 0.87
+        },
+        {
+          "start": 22.2,
+          "end": 22.96,
+          "text": "Salad",
+          "probability": 0.996
+        },
+        {
+          "start": 22.96,
+          "end": 24.04,
+          "text": "Have",
+          "probability": 0.926
+        },
+        {
+          "start": 24.04,
+          "end": 24.38,
+          "text": "ready",
+          "probability": 0.964
+        },
+        {
+          "start": 24.38,
+          "end": 24.64,
+          "text": "as",
+          "probability": 0.856
+        },
+        {
+          "start": 24.64,
+          "end": 24.84,
+          "text": "many",
+          "probability": 0.998
+        },
+        {
+          "start": 24.84,
+          "end": 25.06,
+          "text": "crisp",
+          "probability": 0.972
+        },
+        {
+          "start": 25.06,
+          "end": 25.42,
+          "text": "leaves",
+          "probability": 0.993
+        },
+        {
+          "start": 25.42,
+          "end": 25.7,
+          "text": "of",
+          "probability": 0.995
+        },
+        {
+          "start": 25.7,
+          "end": 25.94,
+          "text": "lettuce",
+          "probability": 0.998
+        },
+        {
+          "start": 25.94,
+          "end": 26.26,
+          "text": "as",
+          "probability": 0.957
+        },
+        {
+          "start": 26.26,
+          "end": 26.44,
+          "text": "may",
+          "probability": 0.989
+        },
+        {
+          "start": 26.44,
+          "end": 26.58,
+          "text": "be",
+          "probability": 0.998
+        },
+        {
+          "start": 26.58,
+          "end": 27.08,
+          "text": "required",
+          "probability": 0.998
+        },
+        {
+          "start": 27.08,
+          "end": 27.32,
+          "text": "to",
+          "probability": 0.979
+        },
+        {
+          "start": 27.32,
+          "end": 27.5,
+          "text": "make",
+          "probability": 0.999
+        },
+        {
+          "start": 27.5,
+          "end": 27.62,
+          "text": "a",
+          "probability": 0.998
+        },
+        {
+          "start": 27.62,
+          "end": 27.96,
+          "text": "dainty",
+          "probability": 0.993
+        },
+        {
+          "start": 27.96,
+          "end": 28.16,
+          "text": "little",
+          "probability": 0.975
+        },
+        {
+          "start": 28.16,
+          "end": 28.46,
+          "text": "nest",
+          "probability": 0.998
+        },
+        {
+          "start": 28.46,
+          "end": 28.72,
+          "text": "for",
+          "probability": 0.997
+        },
+        {
+          "start": 28.72,
+          "end": 28.88,
+          "text": "each",
+          "probability": 0.999
+        },
+        {
+          "start": 28.88,
+          "end": 29.28,
+          "text": "person.",
+          "probability": 0.998
+        }
+      ]
+    },
+    {
+      "start": 30.3,
+      "end": 35.52,
+      "speaker": "SPEAKER_00",
+      "text": "None might exhort or confess or in any way meddle with the religious experience of another.",
+      "words": [
+        {
+          "start": 30.3,
+          "end": 30.86,
+          "text": "None",
+          "probability": 0.326
+        },
+        {
+          "start": 30.86,
+          "end": 31.18,
+          "text": "might",
+          "probability": 0.982
+        },
+        {
+          "start": 31.18,
+          "end": 31.7,
+          "text": "exhort",
+          "probability": 0.959
+        },
+        {
+          "start": 31.7,
+          "end": 31.88,
+          "text": "or",
+          "probability": 0.949
+        },
+        {
+          "start": 31.88,
+          "end": 32.4,
+          "text": "confess",
+          "probability": 0.994
+        },
+        {
+          "start": 32.4,
+          "end": 32.7,
+          "text": "or",
+          "probability": 0.752
+        },
+        {
+          "start": 32.7,
+          "end": 32.84,
+          "text": "in",
+          "probability": 0.883
+        },
+        {
+          "start": 32.84,
+          "end": 33.02,
+          "text": "any",
+          "probability": 0.966
+        },
+        {
+          "start": 33.02,
+          "end": 33.24,
+          "text": "way",
+          "probability": 0.995
+        },
+        {
+          "start": 33.24,
+          "end": 33.58,
+          "text": "meddle",
+          "probability": 0.862
+        },
+        {
+          "start": 33.58,
+          "end": 33.74,
+          "text": "with",
+          "probability": 0.989
+        },
+        {
+          "start": 33.74,
+          "end": 33.86,
+          "text": "the",
+          "probability": 0.918
+        },
+        {
+          "start": 33.86,
+          "end": 34.24,
+          "text": "religious",
+          "probability": 0.999
+        },
+        {
+          "start": 34.24,
+          "end": 34.98,
+          "text": "experience",
+          "probability": 0.989
+        },
+        {
+          "start": 34.98,
+          "end": 35.18,
+          "text": "of",
+          "probability": 0.998
+        },
+        {
+          "start": 35.18,
+          "end": 35.52,
+          "text": "another.",
+          "probability": 0.989
+        }
+      ]
+    },
+    {
+      "start": 37.26,
+      "end": 40.28,
+      "speaker": "SPEAKER_01",
+      "text": "Serve with French dressing hidden under the leaves of the nest.",
+      "words": [
+        {
+          "start": 37.26,
+          "end": 37.82,
+          "text": "Serve",
+          "probability": 0.745
+        },
+        {
+          "start": 37.82,
+          "end": 38.1,
+          "text": "with",
+          "probability": 0.972
+        },
+        {
+          "start": 38.1,
+          "end": 38.3,
+          "text": "French",
+          "probability": 0.954
+        },
+        {
+          "start": 38.3,
+          "end": 38.68,
+          "text": "dressing",
+          "probability": 0.841
+        },
+        {
+          "start": 38.68,
+          "end": 39.04,
+          "text": "hidden",
+          "probability": 0.862
+        },
+        {
+          "start": 39.04,
+          "end": 39.34,
+          "text": "under",
+          "probability": 0.999
+        },
+        {
+          "start": 39.34,
+          "end": 39.48,
+          "text": "the",
+          "probability": 0.995
+        },
+        {
+          "start": 39.48,
+          "end": 39.74,
+          "text": "leaves",
+          "probability": 0.999
+        },
+        {
+          "start": 39.74,
+          "end": 39.92,
+          "text": "of",
+          "probability": 0.998
+        },
+        {
+          "start": 39.92,
+          "end": 40.0,
+          "text": "the",
+          "probability": 0.96
+        },
+        {
+          "start": 40.0,
+          "end": 40.28,
+          "text": "nest.",
+          "probability": 0.977
+        }
+      ]
+    },
+    {
+      "start": 42.61,
+      "end": 47.23,
+      "speaker": "SPEAKER_00",
+      "text": "Among us all men were created sons of God and stood erect as conscious of their divinity.",
+      "words": [
+        {
+          "start": 42.61,
+          "end": 42.83,
+          "text": "Among",
+          "probability": 0.978
+        },
+        {
+          "start": 42.83,
+          "end": 43.09,
+          "text": "us",
+          "probability": 0.792
+        },
+        {
+          "start": 43.09,
+          "end": 43.25,
+          "text": "all",
+          "probability": 0.907
+        },
+        {
+          "start": 43.25,
+          "end": 43.45,
+          "text": "men",
+          "probability": 0.998
+        },
+        {
+          "start": 43.45,
+          "end": 43.61,
+          "text": "were",
+          "probability": 0.981
+        },
+        {
+          "start": 43.61,
+          "end": 43.99,
+          "text": "created",
+          "probability": 0.993
+        },
+        {
+          "start": 43.99,
+          "end": 44.35,
+          "text": "sons",
+          "probability": 0.865
+        },
+        {
+          "start": 44.35,
+          "end": 44.57,
+          "text": "of",
+          "probability": 0.995
+        },
+        {
+          "start": 44.57,
+          "end": 44.85,
+          "text": "God",
+          "probability": 0.949
+        },
+        {
+          "start": 44.85,
+          "end": 45.05,
+          "text": "and",
+          "probability": 0.914
+        },
+        {
+          "start": 45.05,
+          "end": 45.25,
+          "text": "stood",
+          "probability": 0.99
+        },
+        {
+          "start": 45.25,
+          "end": 45.63,
+          "text": "erect",
+          "probability": 0.998
+        },
+        {
+          "start": 45.63,
+          "end": 45.87,
+          "text": "as",
+          "probability": 0.875
+        },
+        {
+          "start": 45.87,
+          "end": 46.31,
+          "text": "conscious",
+          "probability": 0.978
+        },
+        {
+          "start": 46.31,
+          "end": 46.59,
+          "text": "of",
+          "probability": 0.998
+        },
+        {
+          "start": 46.59,
+          "end": 46.75,
+          "text": "their",
+          "probability": 0.998
+        },
+        {
+          "start": 46.75,
+          "end": 47.23,
+          "text": "divinity.",
+          "probability": 0.987
+        }
+      ]
+    },
+    {
+      "start": 49.07,
+      "end": 57.49,
+      "speaker": "SPEAKER_01",
+      "text": "Cabbage Salad Chop or shave fine, half a medium -sized head of cabbage that has been left in cold water until crisp, then drain. Thank you for watching.",
+      "words": [
+        {
+          "start": 49.07,
+          "end": 49.63,
+          "text": "Cabbage",
+          "probability": 0.986
+        },
+        {
+          "start": 49.63,
+          "end": 50.07,
+          "text": "Salad",
+          "probability": 0.539
+        },
+        {
+          "start": 50.07,
+          "end": 51.13,
+          "text": "Chop",
+          "probability": 0.52
+        },
+        {
+          "start": 51.13,
+          "end": 51.47,
+          "text": "or",
+          "probability": 0.938
+        },
+        {
+          "start": 51.47,
+          "end": 51.75,
+          "text": "shave",
+          "probability": 0.967
+        },
+        {
+          "start": 51.75,
+          "end": 52.11,
+          "text": "fine,",
+          "probability": 0.986
+        },
+        {
+          "start": 52.53,
+          "end": 52.75,
+          "text": "half",
+          "probability": 0.957
+        },
+        {
+          "start": 52.75,
+          "end": 52.95,
+          "text": "a",
+          "probability": 0.973
+        },
+        {
+          "start": 52.95,
+          "end": 53.19,
+          "text": "medium",
+          "probability": 0.998
+        },
+        {
+          "start": 53.19,
+          "end": 53.53,
+          "text": "-sized",
+          "probability": 0.63
+        },
+        {
+          "start": 53.53,
+          "end": 53.85,
+          "text": "head",
+          "probability": 0.992
+        },
+        {
+          "start": 53.85,
+          "end": 53.97,
+          "text": "of",
+          "probability": 0.998
+        },
+        {
+          "start": 53.97,
+          "end": 54.31,
+          "text": "cabbage",
+          "probability": 0.992
+        },
+        {
+          "start": 54.31,
+          "end": 54.65,
+          "text": "that",
+          "probability": 0.939
+        },
+        {
+          "start": 54.65,
+          "end": 54.77,
+          "text": "has",
+          "probability": 0.966
+        },
+        {
+          "start": 54.77,
+          "end": 54.91,
+          "text": "been",
+          "probability": 0.998
+        },
+        {
+          "start": 54.91,
+          "end": 55.13,
+          "text": "left",
+          "probability": 0.998
+        },
+        {
+          "start": 55.13,
+          "end": 55.35,
+          "text": "in",
+          "probability": 0.998
+        },
+        {
+          "start": 55.35,
+          "end": 55.59,
+          "text": "cold",
+          "probability": 0.999
+        },
+        {
+          "start": 55.59,
+          "end": 55.93,
+          "text": "water",
+          "probability": 0.997
+        },
+        {
+          "start": 55.93,
+          "end": 56.25,
+          "text": "until",
+          "probability": 0.997
+        },
+        {
+          "start": 56.25,
+          "end": 56.71,
+          "text": "crisp,",
+          "probability": 0.998
+        },
+        {
+          "start": 56.99,
+          "end": 57.13,
+          "text": "then",
+          "probability": 0.995
+        },
+        {
+          "start": 57.13,
+          "end": 57.43,
+          "text": "drain.",
+          "probability": 0.99
+        },
+        {
+          "start": 57.43,
+          "end": 57.43,
+          "text": "Thank",
+          "probability": 0.008
+        },
+        {
+          "start": 57.43,
+          "end": 57.43,
+          "text": "you",
+          "probability": 0.961
+        },
+        {
+          "start": 57.43,
+          "end": 57.47,
+          "text": "for",
+          "probability": 0.32
+        },
+        {
+          "start": 57.47,
+          "end": 57.49,
+          "text": "watching.",
+          "probability": 0.406
+        }
+      ]
+    }
+  ]
+}

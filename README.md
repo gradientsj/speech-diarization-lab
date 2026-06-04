@@ -10,6 +10,13 @@ WER and DER are implemented from scratch against hand-computed values, and
 the diarizer is evaluated against the pretrained pyannote reference under
 identical metrics on a reproducible benchmark.
 
+**[Listen to the output](https://gradientsj.github.io/speech-diarization-lab/)** —
+three benchmark mixtures with the speaker-attributed transcript synced to the
+audio: per-speaker timeline, click-any-word-to-seek, live word highlighting.
+The transcripts shown are real pipeline output, hallucinations and all (the
+trailing *"Thank you for watching."* on mix_000 is Whisper inventing words
+over silence — visible in one listen, invisible in a pooled WER).
+
 ## The problem
 
 A transcript without speakers is close to unusable for meetings, interviews,

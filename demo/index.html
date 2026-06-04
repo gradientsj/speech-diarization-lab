@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>speech-diarization-lab — demo</title>
+<style>
+  :root {
+    --bg: #11151a;
+    --panel: #1a2026;
+    --text: #d8dee6;
+    --muted: #7d8a99;
+    --accent: #4ea1ff;
+    /* speaker palette: distinguishable on dark, color-blind friendly-ish */
+    --s0: #4ea1ff; --s1: #ffb14e; --s2: #5fd68b; --s3: #e07be0;
+    --s4: #ff6e6e; --s5: #5fd6d6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 24px 20px 80px; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+  h1 a { color: var(--accent); text-decoration: none; }
+  .sub { color: var(--muted); margin: 0 0 20px; font-size: 14px; }
+  .samples { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .samples button {
+    background: var(--panel); color: var(--text); border: 1px solid #2c3640;
+    border-radius: 8px; padding: 8px 14px; font: inherit; cursor: pointer;
+  }
+  .samples button.active { border-color: var(--accent); color: var(--accent); }
+  audio { width: 100%; margin-bottom: 10px; }
+  /* timeline strip: one row per speaker, segments as colored bands */
+  #timeline {
+    position: relative; background: var(--panel); border-radius: 8px;
+    margin-bottom: 6px; cursor: pointer; overflow: hidden;
+  }
+  .tl-row { position: relative; height: 22px; }
+  .tl-band { position: absolute; top: 3px; bottom: 3px; border-radius: 3px; opacity: .85; }
+  .tl-label {
+    position: absolute; left: 6px; top: 50%; transform: translateY(-50%);
+    font-size: 11px; color: var(--muted); pointer-events: none; z-index: 2;
+  }
+  #playhead {
+    position: absolute; top: 0; bottom: 0; width: 2px; background: #fff;
+    opacity: .9; pointer-events: none; z-index: 3;
+  }
+  .legend { display: flex; gap: 14px; margin: 8px 0 20px; font-size: 13px; color: var(--muted); flex-wrap: wrap; }
+  .legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+  /* transcript */
+  .seg {
+    display: grid; grid-template-columns: 86px 1fr; gap: 12px;
+    padding: 10px 12px; border-radius: 8px; margin-bottom: 6px;
+    background: var(--panel); border-left: 3px solid transparent;
+  }
+  .seg.current { border-left-color: var(--seg-color); background: #1f2731; }
+  .seg .who { font-size: 12px; font-weight: 600; padding-top: 2px; }
+  .seg .when { font-size: 11px; color: var(--muted); font-weight: 400; }
+  .seg .text span { cursor: pointer; border-radius: 3px; padding: 0 1px; }
+  .seg .text span:hover { background: #2c3640; }
+  .seg .text span.now { background: var(--accent); color: #08121e; }
+  .note { color: var(--muted); font-size: 13px; margin-top: 28px; }
+  .note code { background: var(--panel); padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1><a href="https://github.com/gradientsj/speech-diarization-lab">speech-diarization-lab</a> — live output</h1>
+  <p class="sub">
+    Speaker-attributed transcription from the <code>clustered</code> backend
+    (silero VAD + ECAPA-TDNN + agglomerative clustering) aligned to
+    faster-whisper words. Click any word or the timeline to seek; the
+    transcript follows the audio. Speaker count is <em>estimated</em>, not given.
+  </p>
+
+  <div class="samples" id="samples"></div>
+  <audio id="player" controls preload="auto"></audio>
+  <div id="timeline"></div>
+  <div class="legend" id="legend"></div>
+  <div id="transcript"></div>
+
+  <p class="note">
+    Audio is synthetic conversation built from LibriSpeech dev-clean
+    (read speech, no overlap), the same seeded mixtures the
+    <a href="https://github.com/gradientsj/speech-diarization-lab#results" style="color:var(--accent)">benchmark</a>
+    scores. Serve locally with <code>python -m http.server -d demo</code> if not viewing on GitHub Pages.
+  </p>
+</div>
+
+<script>
+const SAMPLES = [
+  { id: "mix_000", label: "mix_000 · 2 speakers" },
+  { id: "mix_007", label: "mix_007 · 3 speakers" },
+  { id: "mix_002", label: "mix_002 · 4 speakers" },
+];
+const COLORS = ["--s0","--s1","--s2","--s3","--s4","--s5"];
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+const player = document.getElementById("player");
+const tl = document.getElementById("timeline");
+let segs = [], words = [], duration = 1, speakerColor = {};
+
+function speakerHue(name) {
+  if (!(name in speakerColor))
+    speakerColor[name] = css(COLORS[Object.keys(speakerColor).length % COLORS.length]);
+  return speakerColor[name];
+}
+
+async function load(id) {
+  document.querySelectorAll("#samples button").forEach(b =>
+    b.classList.toggle("active", b.dataset.id === id));
+  const data = await (await fetch(`data/${id}.json`)).json();
+  player.src = `data/${id}.wav`;
+  segs = data.segments;
+  speakerColor = {};
+  duration = Math.max(...segs.map(s => s.end), 1);
+
+  // legend
+  const speakers = [...new Set(segs.map(s => s.speaker))].sort();
+  document.getElementById("legend").innerHTML = speakers.map(sp =>
+    `<span><span class="dot" style="background:${speakerHue(sp)}"></span>${sp}</span>`).join("");
+
+  // timeline: one row per speaker
+  tl.innerHTML = '<div id="playhead"></div>';
+  for (const sp of speakers) {
+    const row = document.createElement("div");
+    row.className = "tl-row";
+    row.innerHTML = `<span class="tl-label">${sp}</span>`;
+    for (const s of segs.filter(s => s.speaker === sp)) {
+      const band = document.createElement("div");
+      band.className = "tl-band";
+      band.style.left = (s.start / duration * 100) + "%";
+      band.style.width = ((s.end - s.start) / duration * 100) + "%";
+      band.style.background = speakerHue(sp);
+      row.appendChild(band);
+    }
+    tl.appendChild(row);
+  }
+
+  // transcript with word spans
+  words = [];
+  const tr = document.getElementById("transcript");
+  tr.innerHTML = "";
+  segs.forEach((s, i) => {
+    const div = document.createElement("div");
+    div.className = "seg";
+    div.style.setProperty("--seg-color", speakerHue(s.speaker));
+    const fmt = t => `${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,"0")}`;
+    div.innerHTML = `<div class="who" style="color:${speakerHue(s.speaker)}">${s.speaker}
+      <div class="when">${fmt(s.start)}–${fmt(s.end)}</div></div>`;
+    const text = document.createElement("div");
+    text.className = "text";
+    for (const w of s.words) {
+      const span = document.createElement("span");
+      span.textContent = w.text + " ";
+      span.onclick = () => { player.currentTime = w.start + 0.01; player.play(); };
+      text.appendChild(span);
+      words.push({ ...w, el: span, segEl: div });
+    }
+    div.appendChild(text);
+    tr.appendChild(div);
+  });
+}
+
+tl.addEventListener("click", e => {
+  const r = tl.getBoundingClientRect();
+  player.currentTime = (e.clientX - r.left) / r.width * duration;
+  player.play();
+});
+
+let lastWord = null, lastSeg = null;
+player.addEventListener("timeupdate", () => {
+  const t = player.currentTime;
+  document.getElementById("playhead").style.left = (t / duration * 100) + "%";
+  const w = words.find(w => t >= w.start && t < w.end);
+  if (w !== lastWord) {
+    lastWord?.el.classList.remove("now");
+    w?.el.classList.add("now");
+    lastWord = w;
+  }
+  const segEl = w?.segEl ?? lastSeg;
+  if (segEl !== lastSeg) {
+    lastSeg?.classList.remove("current");
+    segEl?.classList.add("current");
+    if (segEl && !player.paused) segEl.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    lastSeg = segEl;
+  }
+});
+
+document.getElementById("samples").innerHTML = SAMPLES.map(s =>
+  `<button data-id="${s.id}">${s.label}</button>`).join("");
+document.querySelectorAll("#samples button").forEach(b =>
+  b.onclick = () => load(b.dataset.id));
+load(SAMPLES[0].id);
+</script>
+</body>
+</html>
