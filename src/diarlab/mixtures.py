@@ -6,11 +6,13 @@ utterances from a clean read-speech corpus gives a benchmark where the turn
 boundaries and transcripts are known exactly, the construction is seeded and
 reproducible, and nothing requires credentials to download.
 
-The trade-off is stated up front: these mixtures have no overlapped speech,
-no channel mismatch between speakers, and read-speech acoustics, so scores
-on them are an upper bound on conversational performance, useful for
+The trade-off is stated up front: the default mixtures have no overlapped
+speech, no channel mismatch between speakers, and read-speech acoustics, so
+scores on them are an upper bound on conversational performance, useful for
 comparing systems under identical conditions rather than for quoting as
-real-world accuracy.
+real-world accuracy. `overlap_prob` adds the first missing stressor: seeded
+partial overlap at speaker changes, where the next speaker starts before
+the current one finishes and the waveforms sum.
 """
 
 from __future__ import annotations
@@ -53,8 +55,20 @@ def build_mixture(
     utterances: list[Utterance],
     gap_range: tuple[float, float] = (0.4, 1.2),
     seed: int = 0,
+    overlap_prob: float = 0.0,
+    overlap_range: tuple[float, float] = (0.5, 1.5),
 ) -> Mixture:
-    """Concatenate utterances in order with seeded silence gaps between them."""
+    """Place utterances on a timeline with seeded gaps, optionally overlapping.
+
+    With `overlap_prob` zero this is plain concatenation with silence gaps.
+    Otherwise each transition to a *different* speaker overlaps with that
+    probability: the next utterance starts before the current one ends and
+    the waveforms sum over the contested span. The overlap is capped at
+    half the shorter utterance so both turns keep an uncontested core, and
+    consecutive turns by the same speaker never overlap (a speaker does not
+    talk over themselves). Reference turns record the true placement, so
+    the ground truth contains real overlapped speech.
+    """
     if not utterances:
         raise ValueError("need at least one utterance")
     rates = {u.sample_rate for u in utterances}
@@ -63,23 +77,52 @@ def build_mixture(
     sr = rates.pop()
 
     rng = np.random.default_rng(seed)
-    pieces: list[np.ndarray] = []
+    # Sample offsets accumulate in integers exactly as concatenation would,
+    # so the overlap_prob=0 path stays byte-identical to the original
+    # construction; turn times accumulate in float seconds as before.
+    placements: list[tuple[int, np.ndarray]] = []
     turns: list[Turn] = []
     transcripts: list[tuple[str, str]] = []
-    cursor = 0.0
+    prev_end = 0.0
+    prev_lo = prev_len = 0
     for i, utt in enumerate(utterances):
-        if i > 0:
-            gap = float(rng.uniform(*gap_range))
-            pieces.append(np.zeros(int(round(gap * sr)), dtype=np.float32))
-            cursor += gap
         samples = np.asarray(utt.samples, dtype=np.float32)
-        pieces.append(samples)
         duration = len(samples) / sr
-        turns.append(Turn(cursor, cursor + duration, utt.speaker))
+        if i == 0:
+            start, lo = 0.0, 0
+        else:
+            prev = turns[-1]
+            # draw the overlap decision only when overlap is enabled, so the
+            # overlap_prob=0 path consumes the same rng sequence as the
+            # original construction and the seeded mixtures stay unchanged
+            overlap_here = (
+                overlap_prob > 0
+                and utt.speaker != prev.speaker
+                and float(rng.uniform()) < overlap_prob
+            )
+            if overlap_here:
+                cap = min(prev.duration, duration) / 2.0
+                overlap = min(float(rng.uniform(*overlap_range)), cap)
+                start = prev_end - overlap
+                lo = prev_lo + prev_len - int(round(overlap * sr))
+            else:
+                gap = float(rng.uniform(*gap_range))
+                start = prev_end + gap
+                lo = prev_lo + prev_len + int(round(gap * sr))
+        placements.append((lo, samples))
+        turns.append(Turn(start, start + duration, utt.speaker))
         transcripts.append((utt.speaker, utt.transcript))
-        cursor += duration
+        prev_end = start + duration
+        prev_lo, prev_len = lo, len(samples)
 
-    return Mixture(np.concatenate(pieces), sr, turns, transcripts)
+    mix = np.zeros(max(lo + len(s) for lo, s in placements), dtype=np.float32)
+    for lo, samples in placements:
+        mix[lo : lo + len(samples)] += samples
+    peak = float(np.max(np.abs(mix))) if len(mix) else 0.0
+    if peak > 1.0:  # summed overlaps can clip; rescale once, globally
+        mix /= peak
+
+    return Mixture(mix, sr, turns, transcripts)
 
 
 def interleave_speakers(

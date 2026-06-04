@@ -21,4 +21,5 @@ Thumbs.db
 # Local data and model caches (benchmark audio is rebuilt by script)
 data/audio/
 data/mixtures/
+data/mixtures_overlap/
 pretrained_models/

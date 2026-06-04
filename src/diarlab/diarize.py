@@ -35,6 +35,12 @@ class ClusteredConfig:
     vad_threshold: float = 0.5
     min_gap: float = 0.3
     min_duration: float = 0.2
+    # Edge padding applied to raw VAD regions, calibrated the same way as
+    # the distance threshold (`bench sweep --param pad`); see the README.
+    # 0.25 matches the DER collar, which is not a coincidence: boundary
+    # ambiguity inside the collar is unscored, so padding to its edge
+    # recovers trimmed speech at almost no false-alarm cost.
+    vad_pad: float = 0.25
     device: str = "cpu"
 
 
@@ -47,7 +53,9 @@ def diarize_clustered(
 
     cfg = config or ClusteredConfig()
     raw = detect_speech(audio, sample_rate, threshold=cfg.vad_threshold)
-    regions = merge_regions(raw, min_gap=cfg.min_gap, min_duration=cfg.min_duration)
+    regions = merge_regions(
+        raw, min_gap=cfg.min_gap, min_duration=cfg.min_duration, pad=cfg.vad_pad
+    )
     if not regions:
         return []
     windows = slice_windows(regions, window=cfg.window, stride=cfg.stride)

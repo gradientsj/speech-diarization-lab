@@ -8,125 +8,125 @@
     "oracle_speaker_count": false,
     "distance_threshold": 0.75,
     "vad_pad": 0.25,
-    "overlap": false,
+    "overlap": true,
     "mixtures": 12
   },
   "overall": {
-    "wer": 0.0284,
-    "der": 0.0038,
-    "der_miss": 0.0032,
-    "der_false_alarm": 0.0006,
-    "der_confusion": 0.0,
-    "mean_rtf_asr": 0.0249
+    "wer": 0.0375,
+    "der": 0.045,
+    "der_miss": 0.0413,
+    "der_false_alarm": 0.0003,
+    "der_confusion": 0.0033,
+    "mean_rtf_asr": 0.0359
   },
   "per_mixture": [
     {
       "id": "mix_000",
-      "duration": 57.917,
+      "duration": 56.67,
       "num_speakers_ref": 2,
       "num_speakers_hyp": 2,
       "wer": 0.0448,
       "der": 0.0048,
-      "rtf_asr": 0.0263
+      "rtf_asr": 0.0315
     },
     {
       "id": "mix_001",
-      "duration": 50.202,
+      "duration": 43.502,
       "num_speakers_ref": 3,
-      "num_speakers_hyp": 3,
-      "wer": 0.0576,
-      "der": 0.0058,
-      "rtf_asr": 0.0244
-    },
-    {
-      "id": "mix_002",
-      "duration": 53.301,
-      "num_speakers_ref": 4,
       "num_speakers_hyp": 4,
-      "wer": 0.0075,
-      "der": 0.0036,
-      "rtf_asr": 0.0214
-    },
-    {
-      "id": "mix_003",
-      "duration": 50.615,
-      "num_speakers_ref": 2,
-      "num_speakers_hyp": 2,
-      "wer": 0.0,
-      "der": 0.0077,
-      "rtf_asr": 0.0226
-    },
-    {
-      "id": "mix_004",
-      "duration": 56.442,
-      "num_speakers_ref": 3,
-      "num_speakers_hyp": 3,
-      "wer": 0.0141,
-      "der": 0.005,
-      "rtf_asr": 0.0228
-    },
-    {
-      "id": "mix_005",
-      "duration": 58.908,
-      "num_speakers_ref": 4,
-      "num_speakers_hyp": 4,
-      "wer": 0.0208,
-      "der": 0.0041,
-      "rtf_asr": 0.0216
-    },
-    {
-      "id": "mix_006",
-      "duration": 61.126,
-      "num_speakers_ref": 2,
-      "num_speakers_hyp": 2,
-      "wer": 0.0382,
-      "der": 0.0025,
+      "wer": 0.0504,
+      "der": 0.0658,
       "rtf_asr": 0.0304
     },
     {
-      "id": "mix_007",
-      "duration": 72.174,
-      "num_speakers_ref": 3,
-      "num_speakers_hyp": 3,
-      "wer": 0.0155,
-      "der": 0.0023,
-      "rtf_asr": 0.0227
+      "id": "mix_002",
+      "duration": 46.411,
+      "num_speakers_ref": 4,
+      "num_speakers_hyp": 5,
+      "wer": 0.015,
+      "der": 0.0551,
+      "rtf_asr": 0.024
     },
     {
-      "id": "mix_008",
-      "duration": 46.076,
+      "id": "mix_003",
+      "duration": 42.568,
+      "num_speakers_ref": 2,
+      "num_speakers_hyp": 2,
+      "wer": 0.0079,
+      "der": 0.0567,
+      "rtf_asr": 0.0262
+    },
+    {
+      "id": "mix_004",
+      "duration": 55.572,
+      "num_speakers_ref": 3,
+      "num_speakers_hyp": 3,
+      "wer": 0.0141,
+      "der": 0.0048,
+      "rtf_asr": 0.0234
+    },
+    {
+      "id": "mix_005",
+      "duration": 51.361,
       "num_speakers_ref": 4,
       "num_speakers_hyp": 4,
-      "wer": 0.0962,
-      "der": 0.0007,
+      "wer": 0.0347,
+      "der": 0.0541,
       "rtf_asr": 0.0249
     },
     {
-      "id": "mix_009",
-      "duration": 46.854,
+      "id": "mix_006",
+      "duration": 54.23,
       "num_speakers_ref": 2,
       "num_speakers_hyp": 2,
-      "wer": 0.0,
-      "der": 0.0073,
-      "rtf_asr": 0.0268
+      "wer": 0.0446,
+      "der": 0.0472,
+      "rtf_asr": 0.0371
+    },
+    {
+      "id": "mix_007",
+      "duration": 65.714,
+      "num_speakers_ref": 3,
+      "num_speakers_hyp": 3,
+      "wer": 0.0155,
+      "der": 0.035,
+      "rtf_asr": 0.0486
+    },
+    {
+      "id": "mix_008",
+      "duration": 34.614,
+      "num_speakers_ref": 4,
+      "num_speakers_hyp": 4,
+      "wer": 0.1731,
+      "der": 0.1038,
+      "rtf_asr": 0.0546
+    },
+    {
+      "id": "mix_009",
+      "duration": 41.115,
+      "num_speakers_ref": 2,
+      "num_speakers_hyp": 2,
+      "wer": 0.0351,
+      "der": 0.0479,
+      "rtf_asr": 0.0456
     },
     {
       "id": "mix_010",
-      "duration": 63.902,
+      "duration": 61.191,
       "num_speakers_ref": 3,
       "num_speakers_hyp": 3,
       "wer": 0.0181,
-      "der": 0.0012,
-      "rtf_asr": 0.0271
+      "der": 0.02,
+      "rtf_asr": 0.0362
     },
     {
       "id": "mix_011",
-      "duration": 38.219,
+      "duration": 31.75,
       "num_speakers_ref": 4,
-      "num_speakers_hyp": 4,
-      "wer": 0.05,
-      "der": 0.001,
-      "rtf_asr": 0.0276
+      "num_speakers_hyp": 5,
+      "wer": 0.04,
+      "der": 0.1089,
+      "rtf_asr": 0.0477
     }
   ]
 }

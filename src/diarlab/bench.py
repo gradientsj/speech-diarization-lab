@@ -40,8 +40,13 @@ DEV_CLEAN_URL = "https://www.openslr.org/resources/12/dev-clean.tar.gz"
 DATA_DIR = Path("data")
 AUDIO_DIR = DATA_DIR / "audio"
 MIXTURE_DIR = DATA_DIR / "mixtures"
+OVERLAP_MIXTURE_DIR = DATA_DIR / "mixtures_overlap"
 REPORT_DIR = Path("reports")
 SAMPLE_RATE = 16_000
+
+
+def _mixture_dir(overlap: bool) -> Path:
+    return OVERLAP_MIXTURE_DIR if overlap else MIXTURE_DIR
 
 
 # ---------------------------------------------------------------------------
@@ -101,7 +106,8 @@ def cmd_build(args: argparse.Namespace) -> int:
     if not corpus.exists():
         print("corpus missing; run `python -m diarlab.bench fetch` first", file=sys.stderr)
         return 1
-    MIXTURE_DIR.mkdir(parents=True, exist_ok=True)
+    out_dir = _mixture_dir(args.overlap_prob > 0)
+    out_dir.mkdir(parents=True, exist_ok=True)
 
     rng = np.random.default_rng(args.seed)
     speakers = sorted(p for p in corpus.iterdir() if p.is_dir())
@@ -122,27 +128,34 @@ def cmd_build(args: argparse.Namespace) -> int:
             if utts:
                 by_speaker[speaker_dir.name] = utts
         ordered = interleave_speakers(by_speaker, seed=args.seed + i)
-        mix = build_mixture(ordered, seed=args.seed + i)
+        mix = build_mixture(ordered, seed=args.seed + i, overlap_prob=args.overlap_prob)
 
+        # overlapped time between consecutive placements, for the manifest
+        overlapped = sum(
+            max(0.0, mix.turns[j - 1].end - mix.turns[j].start)
+            for j in range(1, len(mix.turns))
+        )
         wav_name = f"mix_{i:03d}.wav"
-        save_audio(MIXTURE_DIR / wav_name, mix.samples, mix.sample_rate)
+        save_audio(out_dir / wav_name, mix.samples, mix.sample_rate)
         manifest.append(
             {
                 "id": f"mix_{i:03d}",
                 "wav": wav_name,
                 "num_speakers": len(by_speaker),
                 "duration": round(mix.duration, 3),
+                "overlap_prob": args.overlap_prob,
+                "overlapped_seconds": round(overlapped, 3),
                 "turns": [asdict(t) for t in mix.turns],
                 "text": mix.reference_text(),
             }
         )
         print(
-            f"built {wav_name}: {len(by_speaker)} speakers, "
-            f"{len(mix.turns)} turns, {mix.duration:.1f}s",
+            f"built {wav_name}: {len(by_speaker)} speakers, {len(mix.turns)} turns, "
+            f"{mix.duration:.1f}s, {overlapped:.1f}s overlapped",
             file=sys.stderr,
         )
 
-    with open(MIXTURE_DIR / "manifest.jsonl", "w", encoding="utf-8") as f:
+    with open(out_dir / "manifest.jsonl", "w", encoding="utf-8") as f:
         for entry in manifest:
             f.write(json.dumps(entry) + "\n")
     total = sum(m["duration"] for m in manifest)
@@ -155,10 +168,13 @@ def cmd_build(args: argparse.Namespace) -> int:
 # ---------------------------------------------------------------------------
 
 
-def _load_manifest() -> list[dict]:
-    path = MIXTURE_DIR / "manifest.jsonl"
+def _load_manifest(mixture_dir: Path) -> list[dict]:
+    path = mixture_dir / "manifest.jsonl"
     if not path.exists():
-        raise FileNotFoundError("no manifest; run `python -m diarlab.bench build` first")
+        raise FileNotFoundError(
+            f"no manifest in {mixture_dir}; run `python -m diarlab.bench build` first"
+            " (with --overlap-prob for the overlap set)"
+        )
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line]
 
 
@@ -176,13 +192,14 @@ def _diarize_mixture(wav: Path, backend: str, num_speakers: int | None, device: 
 def cmd_run(args: argparse.Namespace) -> int:
     from .asr import transcribe
 
-    manifest = _load_manifest()
+    mixture_dir = _mixture_dir(args.overlap)
+    manifest = _load_manifest(mixture_dir)
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
 
     rows: list[dict] = []
     pooled = {"errors": 0, "ref_words": 0, "miss": 0.0, "fa": 0.0, "conf": 0.0, "ref_time": 0.0}
     for entry in manifest:
-        wav = MIXTURE_DIR / entry["wav"]
+        wav = mixture_dir / entry["wav"]
         reference_turns = [Turn(**t) for t in entry["turns"]]
         num_speakers = entry["num_speakers"] if args.oracle_speaker_count else None
 
@@ -238,6 +255,8 @@ def cmd_run(args: argparse.Namespace) -> int:
             "distance_threshold": ClusteredConfig.distance_threshold
             if args.backend == "clustered"
             else None,
+            "vad_pad": ClusteredConfig.vad_pad if args.backend == "clustered" else None,
+            "overlap": args.overlap,
             "mixtures": len(rows),
         },
         "overall": {
@@ -254,6 +273,8 @@ def cmd_run(args: argparse.Namespace) -> int:
     tag = f"{args.backend}_{args.model}_{args.compute_type}_{args.device}"
     if args.oracle_speaker_count:
         tag += "_oracle"
+    if args.overlap:
+        tag = "overlap_" + tag
     out_json = REPORT_DIR / f"benchmark_{tag}.json"
     out_json.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(summary["overall"], indent=2))
@@ -266,11 +287,28 @@ def cmd_run(args: argparse.Namespace) -> int:
 # ---------------------------------------------------------------------------
 
 
-def pooled_der_at(rows: list[dict], threshold: str) -> float:
-    """Pool DER components across mixtures at one grid threshold."""
+# Default grid per sweepable parameter: (lo, hi, step).
+SWEEP_GRIDS = {
+    "threshold": (0.30, 0.90, 0.05),
+    "pad": (0.00, 0.40, 0.05),
+}
+
+
+def pooled_component_at(rows: list[dict], value: str, component: str) -> float:
+    """Pool one DER component (as a rate) across mixtures at one grid value."""
+    total = ref = 0.0
+    for row in rows:
+        cell = row["by_value"][value]
+        total += cell[component]
+        ref += cell["ref_time"]
+    return total / ref if ref else float("nan")
+
+
+def pooled_der_at(rows: list[dict], value: str) -> float:
+    """Pool DER across mixtures at one grid value."""
     miss = fa = conf = ref = 0.0
     for row in rows:
-        cell = row["by_threshold"][threshold]
+        cell = row["by_value"][value]
         miss += cell["miss"]
         fa += cell["false_alarm"]
         conf += cell["confusion"]
@@ -278,92 +316,123 @@ def pooled_der_at(rows: list[dict], threshold: str) -> float:
     return (miss + fa + conf) / ref if ref else float("nan")
 
 
-def pick_threshold(rows: list[dict], thresholds: list[str]) -> str:
-    """The grid threshold with the lowest pooled DER (lowest value on ties)."""
-    return min(thresholds, key=lambda t: (pooled_der_at(rows, t), float(t)))
+def pick_value(rows: list[dict], values: list[str]) -> str:
+    """The grid value with the lowest pooled DER (lowest value on ties)."""
+    return min(values, key=lambda v: (pooled_der_at(rows, v), float(v)))
 
 
 def cmd_sweep(args: argparse.Namespace) -> int:
     from .cluster import cluster_embeddings
-    from .diarize import ClusteredConfig
     from .embeddings import EcapaEmbedder
     from .vad import detect_speech
     from .windows import merge_regions, slice_windows, windows_to_turns
 
-    manifest = _load_manifest()
+    manifest = _load_manifest(MIXTURE_DIR)
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
-    thresholds = [
-        f"{t:.2f}" for t in np.arange(args.lo, args.hi + args.step / 2, args.step)
-    ]
+    lo, hi, step = SWEEP_GRIDS[args.param]
+    lo, hi, step = (
+        args.lo if args.lo is not None else lo,
+        args.hi if args.hi is not None else hi,
+        args.step if args.step is not None else step,
+    )
+    values = [f"{v:.2f}" for v in np.arange(lo, hi + step / 2, step)]
     cfg = ClusteredConfig(device=args.device)
     embedder = EcapaEmbedder(device=args.device)
+
+    def score(reference_turns, windows, labels):
+        hyp_turns = windows_to_turns(windows, labels)
+        d = der(reference_turns, hyp_turns, collar=args.collar)
+        return {
+            "der": round(d.der, 4),
+            "miss": d.missed,
+            "false_alarm": d.false_alarm,
+            "confusion": d.confusion,
+            "ref_time": d.total_reference,
+            "num_speakers_hyp": len({x.speaker for x in hyp_turns}),
+        }
 
     rows: list[dict] = []
     for entry in manifest:
         audio, rate = load_audio(MIXTURE_DIR / entry["wav"])
         reference_turns = [Turn(**t) for t in entry["turns"]]
         raw = detect_speech(audio, rate, threshold=cfg.vad_threshold)
-        regions = merge_regions(raw, min_gap=cfg.min_gap, min_duration=cfg.min_duration)
-        windows = slice_windows(regions, window=cfg.window, stride=cfg.stride)
-        embeddings = embedder.embed_windows(audio, rate, windows)
+        row = {"id": entry["id"], "num_speakers_ref": entry["num_speakers"], "by_value": {}}
 
-        row = {"id": entry["id"], "num_speakers_ref": entry["num_speakers"], "by_threshold": {}}
-        for t in thresholds:
-            labels = cluster_embeddings(embeddings, distance_threshold=float(t))
-            hyp_turns = windows_to_turns(windows, labels)
-            d = der(reference_turns, hyp_turns, collar=args.collar)
-            row["by_threshold"][t] = {
-                "der": round(d.der, 4),
-                "miss": d.missed,
-                "false_alarm": d.false_alarm,
-                "confusion": d.confusion,
-                "ref_time": d.total_reference,
-                "num_speakers_hyp": len({x.speaker for x in hyp_turns}),
-            }
+        if args.param == "threshold":
+            # the threshold only touches clustering, so embed once
+            regions = merge_regions(
+                raw, min_gap=cfg.min_gap, min_duration=cfg.min_duration, pad=cfg.vad_pad
+            )
+            windows = slice_windows(regions, window=cfg.window, stride=cfg.stride)
+            embeddings = embedder.embed_windows(audio, rate, windows)
+            for v in values:
+                labels = cluster_embeddings(embeddings, distance_threshold=float(v))
+                row["by_value"][v] = score(reference_turns, windows, labels)
+        else:
+            # the pad changes the regions, so re-embed per value
+            for v in values:
+                regions = merge_regions(
+                    raw, min_gap=cfg.min_gap, min_duration=cfg.min_duration, pad=float(v)
+                )
+                windows = slice_windows(regions, window=cfg.window, stride=cfg.stride)
+                embeddings = embedder.embed_windows(audio, rate, windows)
+                labels = cluster_embeddings(
+                    embeddings, distance_threshold=cfg.distance_threshold
+                )
+                row["by_value"][v] = score(reference_turns, windows, labels)
+
         rows.append(row)
-        print(f"{entry['id']}: embedded {len(windows)} windows, swept", file=sys.stderr)
+        print(f"{entry['id']}: swept {args.param} over {len(values)} values", file=sys.stderr)
 
     # Even-index mixtures calibrate, odd-index mixtures evaluate. The
     # speaker counts cycle 2/3/4 by index, so both halves stay balanced.
     calibration = rows[0::2]
     heldout = rows[1::2]
-    chosen = pick_threshold(calibration, thresholds)
+    chosen = pick_value(calibration, values)
+    defaults = {"threshold": cfg.distance_threshold, "pad": cfg.vad_pad}
+    default_key = f"{defaults[args.param]:.2f}"
 
     grid = {}
-    for t in thresholds:
+    for v in values:
         count_ok = sum(
-            1 for r in rows if r["by_threshold"][t]["num_speakers_hyp"] == r["num_speakers_ref"]
+            1 for r in rows if r["by_value"][v]["num_speakers_hyp"] == r["num_speakers_ref"]
         )
-        grid[t] = {
-            "calibration_der": round(pooled_der_at(calibration, t), 4),
-            "heldout_der": round(pooled_der_at(heldout, t), 4),
-            "all_der": round(pooled_der_at(rows, t), 4),
+        grid[v] = {
+            "calibration_der": round(pooled_der_at(calibration, v), 4),
+            "heldout_der": round(pooled_der_at(heldout, v), 4),
+            "all_der": round(pooled_der_at(rows, v), 4),
+            "all_miss": round(pooled_component_at(rows, v, "miss"), 4),
+            "all_false_alarm": round(pooled_component_at(rows, v, "false_alarm"), 4),
+            "all_confusion": round(pooled_component_at(rows, v, "confusion"), 4),
             "speaker_count_correct": f"{count_ok}/{len(rows)}",
         }
 
     summary = {
         "config": {
+            "param": args.param,
             "device": args.device,
             "collar": args.collar,
-            "grid": [float(t) for t in thresholds],
+            "grid": [float(v) for v in values],
             "calibration_mixtures": [r["id"] for r in calibration],
             "heldout_mixtures": [r["id"] for r in heldout],
         },
-        "chosen_threshold": float(chosen),
+        "chosen_value": float(chosen),
         "chosen_heldout_der": grid[chosen]["heldout_der"],
-        "default_threshold": ClusteredConfig.distance_threshold,
-        "default_heldout_der": grid[f"{ClusteredConfig.distance_threshold:.2f}"]["heldout_der"]
-        if f"{ClusteredConfig.distance_threshold:.2f}" in grid
-        else None,
+        "default_value": defaults[args.param],
+        "default_heldout_der": grid[default_key]["heldout_der"] if default_key in grid else None,
         "grid": grid,
         "per_mixture": rows,
     }
-    out_json = REPORT_DIR / "threshold_sweep.json"
+    out_json = REPORT_DIR / f"{args.param}_sweep.json"
     out_json.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: v for k, v in summary.items() if k not in ("grid", "per_mixture")}))
-    for t in thresholds:
-        print(f"  {t}: calib={grid[t]['calibration_der']:.4f} heldout={grid[t]['heldout_der']:.4f} "
-              f"all={grid[t]['all_der']:.4f} count={grid[t]['speaker_count_correct']}")
+    for v in values:
+        print(
+            f"  {v}: calib={grid[v]['calibration_der']:.4f} heldout={grid[v]['heldout_der']:.4f} "
+            f"all={grid[v]['all_der']:.4f} miss={grid[v]['all_miss']:.4f} "
+            f"fa={grid[v]['all_false_alarm']:.4f} conf={grid[v]['all_confusion']:.4f} "
+            f"count={grid[v]['speaker_count_correct']}"
+        )
     print(f"wrote {out_json}", file=sys.stderr)
     return 0
 
@@ -383,6 +452,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_build.add_argument("--utterances", type=int, default=9, help="total utterances per mixture")
     p_build.add_argument("--max-utt-seconds", type=float, default=10.0)
     p_build.add_argument("--seed", type=int, default=0)
+    p_build.add_argument(
+        "--overlap-prob",
+        type=float,
+        default=0.0,
+        help="probability a speaker change partially overlaps; >0 writes data/mixtures_overlap/",
+    )
     p_build.set_defaults(func=cmd_build)
 
     p_run = sub.add_parser("run", help="score a configuration on the mixtures")
@@ -396,12 +471,18 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="give the diarizer the true speaker count (upper-bound condition)",
     )
+    p_run.add_argument(
+        "--overlap",
+        action="store_true",
+        help="score the overlapped mixture set (data/mixtures_overlap/)",
+    )
     p_run.set_defaults(func=cmd_run)
 
-    p_sweep = sub.add_parser("sweep", help="calibrate the clustering distance threshold")
-    p_sweep.add_argument("--lo", type=float, default=0.30)
-    p_sweep.add_argument("--hi", type=float, default=0.90)
-    p_sweep.add_argument("--step", type=float, default=0.05)
+    p_sweep = sub.add_parser("sweep", help="calibrate one pipeline parameter on held-out mixtures")
+    p_sweep.add_argument("--param", default="threshold", choices=sorted(SWEEP_GRIDS))
+    p_sweep.add_argument("--lo", type=float, default=None, help="grid start (per-param default)")
+    p_sweep.add_argument("--hi", type=float, default=None, help="grid end (per-param default)")
+    p_sweep.add_argument("--step", type=float, default=None, help="grid step (per-param default)")
     p_sweep.add_argument("--device", default="cpu", choices=["cpu", "cuda"])
     p_sweep.add_argument("--collar", type=float, default=0.25)
     p_sweep.set_defaults(func=cmd_sweep)

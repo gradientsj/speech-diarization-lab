@@ -54,6 +54,62 @@ def test_mixture_rejects_empty():
         build_mixture([])
 
 
+def test_overlap_prob_one_overlaps_speaker_changes():
+    mix = build_mixture(
+        [_utt(440, 2.0, "a", "x"), _utt(880, 2.0, "b", "y")],
+        seed=0,
+        overlap_prob=1.0,
+        overlap_range=(0.5, 0.5),
+    )
+    a, b = mix.turns
+    assert b.start == pytest.approx(a.end - 0.5)
+    # the contested span carries energy from both signals
+    lo, hi = int(b.start * 16_000), int(a.end * 16_000)
+    contested = mix.samples[lo:hi]
+    assert np.abs(contested).max() > 0
+
+
+def test_overlap_never_same_speaker():
+    mix = build_mixture(
+        [_utt(440, 2.0, "a", "x"), _utt(440, 2.0, "a", "y")],
+        seed=0,
+        overlap_prob=1.0,
+    )
+    a, b = mix.turns
+    assert b.start > a.end  # same speaker: gap, never overlap
+
+
+def test_overlap_capped_at_half_the_shorter_utterance():
+    mix = build_mixture(
+        [_utt(440, 4.0, "a", "x"), _utt(880, 1.0, "b", "y")],
+        seed=0,
+        overlap_prob=1.0,
+        overlap_range=(3.0, 3.0),  # asks for more overlap than the cap allows
+    )
+    a, b = mix.turns
+    assert a.end - b.start == pytest.approx(0.5)  # half of the 1.0 s utterance
+
+
+def test_overlap_zero_matches_plain_concatenation():
+    utts = [_utt(440, 1.0, "a", "x"), _utt(880, 1.0, "b", "y")]
+    plain = build_mixture(utts, gap_range=(0.5, 0.5), seed=3)
+    explicit = build_mixture(utts, gap_range=(0.5, 0.5), seed=3, overlap_prob=0.0)
+    assert np.array_equal(plain.samples, explicit.samples)
+    assert plain.turns == explicit.turns
+
+
+def test_overlap_peak_is_normalized():
+    # two loud utterances summed over the full overlap would clip without rescale
+    sr = 16_000
+    loud = np.ones(sr, dtype=np.float32) * 0.9
+    utts = [
+        Utterance(loud, sr, "a", "x"),
+        Utterance(loud.copy(), sr, "b", "y"),
+    ]
+    mix = build_mixture(utts, seed=0, overlap_prob=1.0, overlap_range=(0.5, 0.5))
+    assert np.abs(mix.samples).max() <= 1.0
+
+
 def test_interleave_preserves_utterances():
     by_speaker = {
         "a": [_utt(440, 0.5, "a", "1"), _utt(440, 0.5, "a", "2")],
