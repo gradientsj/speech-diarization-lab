@@ -25,3 +25,4 @@ data/mixtures_overlap/
 pretrained_models/
 data/ami/
 data/ami_dev/
+.local-tools/
