@@ -74,7 +74,13 @@ uv run uvicorn diarlab.server:app --port 8000
 curl -X POST localhost:8000/jobs -F file=@meeting.wav   # -> {"id": ...}
 curl localhost:8000/jobs/<id>                           # -> status + segments
 curl localhost:8000/jobs/<id>/srt                       # -> subtitles
+websocat ws://localhost:8000/jobs/<id>/stream           # -> segments live
 ```
+
+The WebSocket emits each speaker-attributed segment as the decode produces
+it (diarization runs first because it is the fast stage, then ASR segments
+are attributed as faster-whisper yields them), followed by a final status
+event. Connecting after completion replays the same stream.
 
 The server runs jobs on one worker thread: the models load once and the GPU
 is a serial resource. The measured real-time factors say that is enough for
@@ -99,16 +105,27 @@ Each `run` writes `reports/benchmark_<backend>_<model>_<compute>_<device>.json`
 with pooled WER, DER (split into miss / false alarm / confusion), per-mixture
 rows, and ASR real-time factors.
 
-A fourth subcommand calibrates the one real hyperparameter, the clustering
-distance threshold. Embeddings are computed once per mixture and clustering
-is rerun across the grid, so the whole sweep costs about one benchmark run:
+A fourth subcommand calibrates the pipeline's tunable parameters, one at a
+time, each chosen on half the mixtures and scored on the half it never saw:
 
 ```bash
-uv run python -m diarlab.bench sweep --device cuda
+uv run python -m diarlab.bench sweep --param threshold --device cuda
+uv run python -m diarlab.bench sweep --param pad --device cuda
 ```
 
-It picks the threshold on half the mixtures, scores it on the other half,
-and writes the full grid to `reports/threshold_sweep.json`.
+The threshold sweep embeds once per mixture and reruns only the clustering,
+so it costs about one benchmark run; the pad sweep changes the regions and
+re-embeds per grid value. Each writes its full grid to
+`reports/<param>_sweep.json`.
+
+There is also an overlapped-speech variant of the benchmark: speaker
+changes partially overlap with probability 0.5 and the waveforms sum, which
+is the first stressor the plain mixtures deliberately lack:
+
+```bash
+uv run python -m diarlab.bench build --overlap-prob 0.5
+uv run python -m diarlab.bench run --overlap --device cuda
+```
 
 On a CUDA box (tested on Lambda Stack / Ubuntu 22.04):
 
@@ -195,11 +212,12 @@ What the table says:
 
 ### Diarization
 
-| backend | speaker count | threshold | DER | miss | false alarm | confusion |
+| backend | speaker count | threshold / pad | DER | miss | false alarm | confusion |
 |---|---|---|---:|---:|---:|---:|
-| clustered (from parts) | estimated | 0.75 (calibrated) | **4.36%** | 4.36% | 0.00% | 0.00% |
-| clustered (from parts) | estimated | 0.60 (old default) | 5.64% | 4.36% | 0.00% | 1.28% |
-| clustered (from parts) | oracle | 0.60 | 4.36% | 4.36% | 0.00% | 0.00% |
+| clustered (from parts) | estimated | 0.75 / 0.25 (both calibrated) | **0.38%** | 0.32% | 0.06% | 0.00% |
+| clustered (from parts) | estimated | 0.75 / 0.05 | 4.36% | 4.36% | 0.00% | 0.00% |
+| clustered (from parts) | estimated | 0.60 / 0.05 (original) | 5.64% | 4.36% | 0.00% | 1.28% |
+| clustered (from parts) | oracle | 0.60 / 0.05 | 4.36% | 4.36% | 0.00% | 0.00% |
 | pyannote-3.1 (reference) | estimated | n/a | 9.80% | 7.57% | 0.00% | 2.24% |
 
 - The DER is **identical across every ASR configuration and across
@@ -224,43 +242,99 @@ What the table says:
   mixtures (one 2->3 overcount). The honest claim is narrow: on
   non-overlapped read-speech mixtures, VAD + ECAPA + agglomerative
   clustering is sufficient and the heavier pipeline buys nothing; the
-  overlapped-speech mixtures planned below are where the ranking should
-  flip.
+  overlapped-speech section below tests whether that holds once speakers
+  talk over each other.
 
-### Threshold calibration
+### Calibration
 
-The clustering distance threshold is the from-parts pipeline's one real
-hyperparameter. `bench sweep` calibrates it honestly: embeddings are
-computed once per mixture, clustering is rerun across a 0.30-0.90 grid,
-the threshold is chosen on six mixtures and scored on the six it never
-saw. Full grid in `reports/threshold_sweep.json`.
+The from-parts pipeline has two tunable constants: the clustering distance
+threshold and the VAD edge padding. `bench sweep` calibrates each honestly,
+chosen on six mixtures and scored on the six it never saw. Each parameter
+is swept with the other at its shipped value, and the chosen pair was
+re-verified jointly. Full grids in `reports/threshold_sweep.json` and
+`reports/pad_sweep.json`.
+
+The threshold sweep (at pad 0.25):
 
 | threshold | calibration DER | held-out DER | speaker count correct |
 |---:|---:|---:|---:|
-| 0.50 | 28.83% | 32.62% | 0/12 |
-| 0.55 | 17.36% | 15.78% | 3/12 |
-| 0.60 | 5.75% | 5.52% | 7/12 |
-| 0.70 | 5.34% | 4.42% | 9/12 |
-| **0.75** | **4.94%** | **3.73%** | **12/12** |
-| 0.80 | 4.94% | 5.62% | 11/12 |
-| 0.85 | 4.94% | 11.50% | 10/12 |
-| 0.90 | 7.05% | 33.74% | 5/12 |
+| 0.50 | 32.57% | 30.53% | 0/12 |
+| 0.55 | 14.96% | 13.38% | 1/12 |
+| 0.60 | 3.05% | 4.37% | 3/12 |
+| 0.70 | 0.96% | 0.83% | 9/12 |
+| **0.75** | **0.30%** | **0.46%** | **12/12** |
+| 0.80 | 0.30% | 2.43% | 11/12 |
+| 0.85 | 0.30% | 8.48% | 10/12 |
+| 0.90 | 2.41% | 31.66% | 5/12 |
 
 What the sweep says:
 
-- **Calibration recovers the oracle bound without the oracle.** At 0.75 the
-  speaker count is right on all 12 mixtures, confusion is exactly zero, and
-  pooled DER equals the 4.36% VAD miss floor, the same number the
-  oracle-count condition reaches. The threshold is now the shipped default,
-  and the benchmark report regenerated at it confirms the sweep's numbers.
-- **The failure mode is asymmetric.** From 0.60 to 0.80 the curve is nearly
-  flat; above 0.80 it collapses (11.5% at 0.85, 33.7% at 0.90) as distinct
-  speakers merge into one cluster. Undercutting the threshold splits one
-  speaker into two, which the Hungarian mapping partially forgives;
-  overcutting merges two speakers into one, which it cannot. Err low.
+- **At 0.75 the count is right on all 12 mixtures and confusion is exactly
+  zero**, so DER collapses to the padded VAD's residual miss. The first
+  sweep (run at the old 0.05 pad) chose the same 0.75, which is why it is
+  the shipped default.
+- **The failure mode is asymmetric.** Below 0.75 the curve degrades
+  smoothly; above 0.80 it collapses (8.5% at 0.85, 31.7% at 0.90) as
+  distinct speakers merge into one cluster. Undercutting the threshold
+  splits one speaker into two, which the Hungarian mapping partially
+  forgives; overcutting merges two speakers into one, which it cannot.
+  Err low.
 - The usual caveat: 0.75 is calibrated on clean read speech. The value to
   trust is the shape of the curve and the calibration procedure, not the
   constant; on a new acoustic regime, rerun the sweep.
+
+The pad sweep (at threshold 0.75) attacks what was left, the miss floor:
+
+| pad | calibration DER | held-out DER | miss | false alarm | confusion |
+|---:|---:|---:|---:|---:|---:|
+| 0.00 | 6.35% | 5.42% | 5.83% | 0.00% | 0.07% |
+| 0.05 | 4.94% | 3.73% | 4.36% | 0.00% | 0.00% |
+| 0.15 | 2.27% | 1.79% | 2.04% | 0.00% | 0.00% |
+| **0.25** | **0.30%** | **0.46%** | **0.32%** | **0.06%** | **0.00%** |
+| 0.30 | 0.44% | 0.60% | 0.07% | 0.12% | 0.33% |
+| 0.40 | 1.27% | 0.85% | 0.00% | 0.44% | 0.62% |
+
+(miss / false alarm / confusion pooled over all 12 mixtures)
+
+- **The "miss floor" was VAD edge trimming all along.** Padding regions by
+  250 ms takes pooled DER from 4.36% to 0.38%, with the speaker count still
+  right on 12 of 12.
+- **The calibrated pad equals the scoring collar, and that is not a
+  coincidence.** DER does not score within 0.25 s of reference boundaries,
+  precisely because boundary placement is ambiguous, so padding up to the
+  collar's edge recovers trimmed speech nearly free of false-alarm cost.
+  Stated plainly: part of this gain is an artifact of how DER scores
+  boundaries, which is why the collar is reported with every number.
+- Past 0.30 the padding bridges the silence gaps between speakers, windows
+  start crossing turn boundaries, and confusion comes back. Same lesson as
+  the threshold: the cliff is on the over-merging side.
+
+### Overlapped speech
+
+The same systems on the overlap variant (speaker changes overlap with
+probability 0.5; 6.5% of all speech time is overlapped), with no
+recalibration:
+
+| backend | DER | miss | false alarm | confusion |
+|---|---:|---:|---:|---:|
+| clustered (from parts) | **4.50%** | 4.13% | 0.03% | 0.33% |
+| pyannote-3.1 (reference) | 11.73% | 7.63% | 0.00% | 4.10% |
+
+- **The miss component is the overlap, almost exactly.** The clustered
+  pipeline emits one speaker at a time by construction, so wherever two
+  speakers talk at once it must miss one of them: 4.13% missed against
+  6.5% overlapped time (the collar absorbs the rest). The error is
+  structural and fully predicted by the architecture.
+- **The expected ranking flip did not happen.** pyannote 3.1 can emit
+  overlapping turns, and this set was the chance for that to pay off;
+  instead its miss is still higher than the clustered pipeline's
+  (7.63% vs 4.13%) and its confusion grows to 4.10%. On short, clean,
+  partially overlapped read speech the heavier model still does not earn
+  its keep. The honest hypothesis stays open: longer overlaps,
+  conversational acoustics, or real corpora (AMI below) may yet flip it.
+- ASR degrades too: WER for the same small/float16 model rises from 2.84%
+  on the plain set to 3.75% here, since Whisper transcribes one stream and
+  overlapped words are unrecoverable by design.
 
 ## Repository layout
 
@@ -286,17 +360,19 @@ tests/           # CPU-only, no model downloads (the server is tested with
 
 ## What I'd do next
 
-1. **Looser VAD padding for the 4.36% miss floor**, now the only error
-   component left in the from-parts diarizer after calibration zeroed the
-   confusion.
-2. **Overlapped-speech mixtures**: the current benchmark has none, which
-   flatters every system; partial-overlap construction is the obvious next
-   stressor and the place the pyannote comparison should get interesting.
-3. **Real conversational data**: AMI headset mix as a second benchmark with
-   published baselines to sanity-check against.
-4. **Streaming output on the server**: a WebSocket endpoint that emits
-   speaker-attributed segments as the decode progresses, instead of one
-   JSON at the end. The job API is the right substrate for it.
+1. **Real conversational data**: AMI headset mix as a second benchmark with
+   published baselines to sanity-check against. Every number above is on
+   synthetic read speech and says so; this is the step that would test the
+   pipeline against reality.
+2. **Overlap-aware turns**: the 4.13% miss on the overlap set is
+   structural, since the clustered pipeline emits one speaker at a time. A
+   second-pass overlap detector (or per-window soft assignment to two
+   clusters) is the targeted fix.
+3. **Reference vs hypothesis in the demo**: a toggle on the demo timeline
+   showing the ground-truth turns under the predicted ones, so diarization
+   errors are visible instead of only scored.
+4. **A Dockerfile for the server**, with the cuDNN/cuBLAS path baked in,
+   so the serving layer deploys without the runbook.
 
 ## License
 
