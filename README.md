@@ -118,13 +118,17 @@ so it costs about one benchmark run; the pad sweep changes the regions and
 re-embeds per grid value. Each writes its full grid to
 `reports/<param>_sweep.json`.
 
-There is also an overlapped-speech variant of the benchmark: speaker
-changes partially overlap with probability 0.5 and the waveforms sum, which
-is the first stressor the plain mixtures deliberately lack:
+There are two more benchmark sets behind `--set`: the overlap variant of
+the synthetic mixtures (speaker changes partially overlap with probability
+0.5 and the waveforms sum), and AMI headset mix, the real-conversation
+check (CC BY 4.0, no credentials):
 
 ```bash
 uv run python -m diarlab.bench build --overlap-prob 0.5
-uv run python -m diarlab.bench run --overlap --device cuda
+uv run python -m diarlab.bench run --set overlap --device cuda
+
+uv run python -m diarlab.bench fetch-ami     # 3 meetings + annotations, ~170 MB
+uv run python -m diarlab.bench run --set ami --device cuda
 ```
 
 On a CUDA box (tested on Lambda Stack / Ubuntu 22.04):
@@ -336,6 +340,46 @@ recalibration:
   on the plain set to 3.75% here, since Whisper transcribes one stream and
   overlapped words are unrecoverable by design.
 
+### Real conversations: AMI headset mix
+
+Three 4-speaker meetings from the AMI test partition (ES2004a, IS1009b,
+TS3003a; 77 minutes of audio across three recording sites), scored with
+the same DER implementation. Reference turns come from AMI's transcriber
+segments and genuinely overlap; collar 0.25 s; no recalibration of
+anything.
+
+| backend | DER | miss | false alarm | confusion |
+|---|---:|---:|---:|---:|
+| clustered (from parts) | 18.71% | 12.90% | 0.47% | 5.34% |
+| pyannote-3.1 (reference) | **13.25%** | 10.57% | 0.51% | 2.18% |
+
+- **The ranking finally flips.** On synthetic mixtures the from-parts
+  pipeline beat the reference twice; on real meetings pyannote wins by
+  5.5 points. Both results are real, and together they are the point of
+  this repo: the simple pipeline is sufficient exactly up to the regime
+  it was built and calibrated for, and a benchmark that cannot make the
+  pretrained model win was measuring the wrong thing.
+- **Calibration transfer fails loudly, as promised.** The 0.75 threshold,
+  calibrated on clean read speech, estimates 24 to 50 speakers for these
+  4-person meetings; spontaneous speech embeddings spread far wider than
+  read speech. The caveat written next to the calibrated default
+  ("on a new acoustic regime, rerun the sweep") was load-bearing. DER
+  survives as well as it does (the Hungarian mapping scores the best four
+  clusters) but the speaker count output is unusable here.
+- **Long real audio exposes an ASR tail failure mode.** small/float16
+  fell into a repetition loop on TS3003a (92.5% WER on that meeting,
+  pooling to 40.7%); the same model at int8 scored 23.6% on the same
+  audio. The second tail event of this kind in the project, and both were
+  invisible in pooled means until the per-file rows were read.
+- Anchoring against published numbers, with the protocol differences
+  stated: the pyannote 3.1 model card reports 18.8% DER on the full AMI
+  headset-mix test set with no collar and word-based references. This
+  measurement is 13.25% with a 0.25 s collar, transcriber-segment
+  references, and three meetings, so it is consistent in ballpark and not
+  a leaderboard claim. WER on this set is approximate by construction:
+  the reference interleaves all speakers in time order, so no single word
+  order is canonical where speech overlaps.
+
 ## Repository layout
 
 ```
@@ -360,18 +404,22 @@ tests/           # CPU-only, no model downloads (the server is tested with
 
 ## What I'd do next
 
-1. **Real conversational data**: AMI headset mix as a second benchmark with
-   published baselines to sanity-check against. Every number above is on
-   synthetic read speech and says so; this is the step that would test the
-   pipeline against reality.
-2. **Overlap-aware turns**: the 4.13% miss on the overlap set is
+1. **Recalibrate per domain**: let `bench sweep` run on any `--set`, then
+   calibrate the threshold and pad on AMI dev meetings and report how far
+   domain-matched calibration closes the 5.5-point gap to pyannote. The
+   AMI run showed the constants do not transfer; the procedure should.
+2. **Guard the ASR decode on long audio**: the TS3003a repetition loop
+   (92.5% WER at float16, 23.6% at int8) wants a fix and a regression
+   check, likely conditioning and temperature-fallback settings exposed
+   through the wrapper.
+3. **Overlap-aware turns**: the 4.13% miss on the overlap set is
    structural, since the clustered pipeline emits one speaker at a time. A
    second-pass overlap detector (or per-window soft assignment to two
    clusters) is the targeted fix.
-3. **Reference vs hypothesis in the demo**: a toggle on the demo timeline
+4. **Reference vs hypothesis in the demo**: a toggle on the demo timeline
    showing the ground-truth turns under the predicted ones, so diarization
    errors are visible instead of only scored.
-4. **A Dockerfile for the server**, with the cuDNN/cuBLAS path baked in,
+5. **A Dockerfile for the server**, with the cuDNN/cuBLAS path baked in,
    so the serving layer deploys without the runbook.
 
 ## License

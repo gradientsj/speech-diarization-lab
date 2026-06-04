@@ -8,10 +8,11 @@ Three subcommands, run as `python -m diarlab.bench <cmd>`:
   with a manifest carrying exact turns and transcripts.
 - `run` transcribes and diarizes every mixture, scores WER/DER with the
   from-scratch metrics, and writes a JSON + markdown report under reports/.
-- `sweep` calibrates the clustering distance threshold: embeddings are
-  computed once per mixture, clustering is rerun across a threshold grid,
-  the threshold is chosen on half the mixtures and scored on the other
-  half, and the full grid lands in reports/threshold_sweep.json.
+- `sweep` calibrates one pipeline parameter (clustering threshold or VAD
+  pad) on half the mixtures and scores it on the held-out half, writing
+  the full grid to reports/<param>_sweep.json.
+- `fetch-ami` downloads AMI headset-mix meetings plus annotations and
+  builds data/ami/ in the same manifest schema; `run --set ami` scores it.
 
 Everything is deterministic given the seed except wall-clock timings (RTF),
 which are measurements and reported as such.
@@ -40,13 +41,15 @@ DEV_CLEAN_URL = "https://www.openslr.org/resources/12/dev-clean.tar.gz"
 DATA_DIR = Path("data")
 AUDIO_DIR = DATA_DIR / "audio"
 MIXTURE_DIR = DATA_DIR / "mixtures"
-OVERLAP_MIXTURE_DIR = DATA_DIR / "mixtures_overlap"
 REPORT_DIR = Path("reports")
 SAMPLE_RATE = 16_000
 
-
-def _mixture_dir(overlap: bool) -> Path:
-    return OVERLAP_MIXTURE_DIR if overlap else MIXTURE_DIR
+# Each benchmark set is a directory with a manifest.jsonl in one schema.
+SETS = {
+    "plain": MIXTURE_DIR,
+    "overlap": DATA_DIR / "mixtures_overlap",
+    "ami": DATA_DIR / "ami",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -106,7 +109,7 @@ def cmd_build(args: argparse.Namespace) -> int:
     if not corpus.exists():
         print("corpus missing; run `python -m diarlab.bench fetch` first", file=sys.stderr)
         return 1
-    out_dir = _mixture_dir(args.overlap_prob > 0)
+    out_dir = SETS["overlap"] if args.overlap_prob > 0 else SETS["plain"]
     out_dir.mkdir(parents=True, exist_ok=True)
 
     rng = np.random.default_rng(args.seed)
@@ -192,7 +195,7 @@ def _diarize_mixture(wav: Path, backend: str, num_speakers: int | None, device: 
 def cmd_run(args: argparse.Namespace) -> int:
     from .asr import transcribe
 
-    mixture_dir = _mixture_dir(args.overlap)
+    mixture_dir = SETS[args.set]
     manifest = _load_manifest(mixture_dir)
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -256,7 +259,7 @@ def cmd_run(args: argparse.Namespace) -> int:
             if args.backend == "clustered"
             else None,
             "vad_pad": ClusteredConfig.vad_pad if args.backend == "clustered" else None,
-            "overlap": args.overlap,
+            "set": args.set,
             "mixtures": len(rows),
         },
         "overall": {
@@ -273,8 +276,10 @@ def cmd_run(args: argparse.Namespace) -> int:
     tag = f"{args.backend}_{args.model}_{args.compute_type}_{args.device}"
     if args.oracle_speaker_count:
         tag += "_oracle"
-    if args.overlap:
-        tag = "overlap_" + tag
+    if args.collar != 0.25:
+        tag += f"_collar{args.collar:g}"
+    if args.set != "plain":
+        tag = f"{args.set}_" + tag
     out_json = REPORT_DIR / f"benchmark_{tag}.json"
     out_json.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(summary["overall"], indent=2))
@@ -438,6 +443,18 @@ def cmd_sweep(args: argparse.Namespace) -> int:
 
 
 # ---------------------------------------------------------------------------
+# fetch-ami
+# ---------------------------------------------------------------------------
+
+
+def cmd_fetch_ami(args: argparse.Namespace) -> int:
+    from . import ami
+
+    meetings = tuple(args.meetings.split(",")) if args.meetings else ami.DEFAULT_MEETINGS
+    return ami.fetch(SETS["ami"], meetings=meetings)
+
+
+# ---------------------------------------------------------------------------
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -472,11 +489,22 @@ def build_parser() -> argparse.ArgumentParser:
         help="give the diarizer the true speaker count (upper-bound condition)",
     )
     p_run.add_argument(
-        "--overlap",
-        action="store_true",
-        help="score the overlapped mixture set (data/mixtures_overlap/)",
+        "--set",
+        default="plain",
+        choices=sorted(SETS),
+        help="which benchmark set to score (plain mixtures, overlap mixtures, or AMI)",
     )
     p_run.set_defaults(func=cmd_run)
+
+    p_ami = sub.add_parser(
+        "fetch-ami", help="download AMI headset-mix meetings + annotations, build data/ami/"
+    )
+    p_ami.add_argument(
+        "--meetings",
+        default=None,
+        help="comma-separated meeting ids (default: a fixed test-partition subset)",
+    )
+    p_ami.set_defaults(func=cmd_fetch_ami)
 
     p_sweep = sub.add_parser("sweep", help="calibrate one pipeline parameter on held-out mixtures")
     p_sweep.add_argument("--param", default="threshold", choices=sorted(SWEEP_GRIDS))

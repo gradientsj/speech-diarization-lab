@@ -3,6 +3,29 @@
 Running notes on what was done and what each step found. Newest first.
 Numbers here are snapshots; the README tables are the source of truth.
 
+## 2026-06-04: AMI headset mix, the reality check
+
+- **Added AMI as a third benchmark set** (`bench fetch-ami`, then
+  `run --set ami`): three 4-speaker meetings from the test partition,
+  references parsed from the NXT segment annotations (which genuinely
+  overlap), words from the word-level XML. Same manifest schema as the
+  synthetic sets, so the scoring path is identical.
+- **The ranking flipped, as hypothesized.** pyannote-3.1 13.25% DER vs
+  18.71% for the from-parts pipeline. After two synthetic wins for the
+  simple pipeline, real meetings are where the pretrained model earns
+  its keep. This is the result that makes the earlier wins credible.
+- **Calibration did not transfer, loudly.** The threshold calibrated on
+  read speech estimated 24-50 speakers for 4-person meetings. The caveat
+  shipped next to the calibrated default was correct in practice, and
+  per-domain recalibration moved to the top of the roadmap.
+- **Second ASR tail event of the project**: small/float16 repetition
+  loop on one meeting (92.5% WER; same audio at int8: 23.6%). Pooled
+  means hid it; per-file rows surfaced it. Same lesson as the int8
+  word-drop on the synthetic set.
+- Anchored against the pyannote model card (18.8% on full AMI test, no
+  collar, word-based references) with protocol differences stated
+  rather than implied comparability.
+
 ## 2026-06-04: pad calibration, overlapped speech, streaming
 
 - **Calibrated the VAD edge padding** with the same held-out protocol as
