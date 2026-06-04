@@ -1,0 +1,95 @@
+# Work log
+
+Running notes on what was done and what each step found. Newest first.
+Numbers here are snapshots; the README tables are the source of truth.
+
+## 2026-06-04: pad calibration, overlapped speech, streaming
+
+- **Calibrated the VAD edge padding** with the same held-out protocol as
+  the threshold (`bench sweep --param pad`). The 4.36% "miss floor" turned
+  out to be VAD edge trimming: padding regions by 250 ms takes pooled DER
+  from 4.36% to 0.38%, speaker count right on 12/12. The calibrated pad
+  equals the DER collar, which is partly an artifact of how DER scores
+  boundaries; noted in the README rather than glossed over. Past 0.30 the
+  padding bridges speaker gaps and confusion returns. Reran the threshold
+  sweep at the new pad: 0.75 still wins, so the shipped pair is jointly
+  verified.
+- **Built the overlapped-speech benchmark.** Mixture construction now
+  supports seeded partial overlap at speaker changes (waveforms sum,
+  reference turns genuinely overlap, capped at half the shorter
+  utterance). Two regressions caught during development: an extra rng
+  draw and integer/float rounding drift would each have silently changed
+  the seeded plain mixtures; the final construction is byte-identical to
+  the original (verified by checksum), so all published reports stay
+  valid.
+- **Scored both backends on the overlap set** (6.5% of speech time
+  overlapped, no recalibration): clustered 4.50% DER vs pyannote-3.1 at
+  11.73%. The clustered miss (4.13%) tracks the overlapped time, which is
+  structural: the pipeline emits one speaker at a time, so it must miss
+  the second concurrent speaker. The expected ranking flip toward
+  pyannote did not happen; left open as a hypothesis for longer overlaps
+  and real corpora.
+- **Streaming output on the server.** faster-whisper decodes lazily, so
+  the server now diarizes first (the fast stage) and attributes each ASR
+  segment as it decodes. A WebSocket at `/jobs/{id}/stream` emits
+  segments live and replays the stream for late connections. Verified
+  with stub-pipeline tests and against real models on the A10.
+- Ops note: the GitHub remote was force-pushed from a stale clone twice
+  today, the second time wiping pushed work. Restored from the local
+  superset with `--force-with-lease` after verifying the remote had
+  nothing unique. Lesson: `git fetch && git reset --hard origin/main` on
+  secondary machines before touching anything.
+
+## 2026-06-04: threshold calibration and the serving layer
+
+- **Calibrated the clustering distance threshold** on held-out mixtures
+  (`bench sweep`): embeddings computed once per mixture, clustering rerun
+  across a 0.30-0.90 grid, chosen on six mixtures, scored on the six it
+  never saw. The calibrated 0.75 got the speaker count right on all 12
+  mixtures and recovered the oracle-count DER bound without the oracle.
+  The failure mode is asymmetric: under-merging is partially forgiven by
+  the Hungarian mapping, over-merging is unrecoverable, so the curve
+  collapses above 0.80. Shipped 0.75 as the default.
+- **Added the HTTP serving layer**: FastAPI behind a `serve` extra, jobs
+  on one worker thread (the RTF table is the capacity argument: ~45x real
+  time per A10 with small/float16). The pipeline function is injectable,
+  so the tests cover the whole HTTP surface with a stub and CI never
+  downloads a model.
+- Swept the remaining typographic artifacts out of the prose.
+
+## 2026-06-03: pyannote reference and the demo page
+
+- **Closed the pyannote comparison** the repo was built to make: 9.80%
+  DER for the pretrained reference vs 5.64% for the from-parts pipeline,
+  same mixtures, same from-scratch scorer. Getting pyannote 3.x running
+  on a modern stack took three pins/fixes, each now documented in
+  pyproject: torchaudio < 2.9 (AudioMetaData removed), huggingface_hub
+  < 1.0 (use_auth_token removed), and a torch.load weights_only
+  allowlist for the checkpoint's pickled globals.
+- **Built the demo page**: a single static HTML file over the pipeline's
+  own JSON output. Per-speaker timeline, color-coded transcript,
+  word-level highlight synced to the audio, click anything to seek.
+  Deployed to GitHub Pages via Actions from `demo/`.
+- The demo paid for itself immediately: mix_000's transcript ends with
+  "Thank you for watching.", a Whisper hallucination over trailing
+  silence, absent from the reference, audible in one listen, invisible
+  in pooled WER.
+
+## 2026-06-03: benchmark numbers (A10 and CPU)
+
+- WER by model size and compute type, DER decomposition, and real-time
+  factors across an NVIDIA A10 and a consumer CPU. Headlines: small beats
+  large-v3 on clean read speech at a quarter of the RTF; int8 is
+  accuracy-neutral except one mixture where the small model silently
+  drops 59 words (the per-mixture rows surfaced it, the pooled number
+  hid it); DER identical across every ASR config and across platforms,
+  confirming the diarizer is decoupled and deterministic.
+- Oracle-speaker-count condition isolated the error budget: all
+  confusion came from overcounting speakers, the rest is VAD miss.
+
+## 2026-06-03: scaffold
+
+- Pipeline (faster-whisper + silero VAD + ECAPA + agglomerative
+  clustering + max-overlap alignment), WER and DER implemented from
+  scratch against hand-computed values, seeded LibriSpeech mixtures with
+  exact ground truth, 63 CPU-only tests, CI.
