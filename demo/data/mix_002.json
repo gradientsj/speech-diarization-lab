@@ -760,9 +760,9 @@
     },
     {
       "start": 48.8,
-      "end": 50.08,
-      "speaker": "SPEAKER_04",
-      "text": "Looks like a clump of",
+      "end": 52.94,
+      "speaker": "SPEAKER_03",
+      "text": "Looks like a clump of bushes down there, but I ain't sure. Can you make it out?",
       "words": [
         {
           "start": 48.8,
@@ -793,15 +793,7 @@
           "end": 50.08,
           "text": "of",
           "probability": 0.997
-        }
-      ]
-    },
-    {
-      "start": 50.08,
-      "end": 52.94,
-      "speaker": "SPEAKER_03",
-      "text": "bushes down there, but I ain't sure. Can you make it out?",
-      "words": [
+        },
         {
           "start": 50.08,
           "end": 50.32,

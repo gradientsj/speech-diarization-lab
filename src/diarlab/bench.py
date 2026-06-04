@@ -8,6 +8,10 @@ Three subcommands, run as `python -m diarlab.bench <cmd>`:
   with a manifest carrying exact turns and transcripts.
 - `run` transcribes and diarizes every mixture, scores WER/DER with the
   from-scratch metrics, and writes a JSON + markdown report under reports/.
+- `sweep` calibrates the clustering distance threshold: embeddings are
+  computed once per mixture, clustering is rerun across a threshold grid,
+  the threshold is chosen on half the mixtures and scored on the other
+  half, and the full grid lands in reports/threshold_sweep.json.
 
 Everything is deterministic given the seed except wall-clock timings (RTF),
 which are measurements and reported as such.
@@ -27,6 +31,7 @@ import numpy as np
 import soundfile as sf
 
 from .audio import load_audio, save_audio
+from .diarize import ClusteredConfig
 from .metrics import der, normalize_text, wer
 from .mixtures import Utterance, build_mixture, interleave_speakers
 from .types import Turn
@@ -230,6 +235,9 @@ def cmd_run(args: argparse.Namespace) -> int:
             "backend": args.backend,
             "collar": args.collar,
             "oracle_speaker_count": args.oracle_speaker_count,
+            "distance_threshold": ClusteredConfig.distance_threshold
+            if args.backend == "clustered"
+            else None,
             "mixtures": len(rows),
         },
         "overall": {
@@ -249,6 +257,113 @@ def cmd_run(args: argparse.Namespace) -> int:
     out_json = REPORT_DIR / f"benchmark_{tag}.json"
     out_json.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(summary["overall"], indent=2))
+    print(f"wrote {out_json}", file=sys.stderr)
+    return 0
+
+
+# ---------------------------------------------------------------------------
+# sweep
+# ---------------------------------------------------------------------------
+
+
+def pooled_der_at(rows: list[dict], threshold: str) -> float:
+    """Pool DER components across mixtures at one grid threshold."""
+    miss = fa = conf = ref = 0.0
+    for row in rows:
+        cell = row["by_threshold"][threshold]
+        miss += cell["miss"]
+        fa += cell["false_alarm"]
+        conf += cell["confusion"]
+        ref += cell["ref_time"]
+    return (miss + fa + conf) / ref if ref else float("nan")
+
+
+def pick_threshold(rows: list[dict], thresholds: list[str]) -> str:
+    """The grid threshold with the lowest pooled DER (lowest value on ties)."""
+    return min(thresholds, key=lambda t: (pooled_der_at(rows, t), float(t)))
+
+
+def cmd_sweep(args: argparse.Namespace) -> int:
+    from .cluster import cluster_embeddings
+    from .diarize import ClusteredConfig
+    from .embeddings import EcapaEmbedder
+    from .vad import detect_speech
+    from .windows import merge_regions, slice_windows, windows_to_turns
+
+    manifest = _load_manifest()
+    REPORT_DIR.mkdir(parents=True, exist_ok=True)
+    thresholds = [
+        f"{t:.2f}" for t in np.arange(args.lo, args.hi + args.step / 2, args.step)
+    ]
+    cfg = ClusteredConfig(device=args.device)
+    embedder = EcapaEmbedder(device=args.device)
+
+    rows: list[dict] = []
+    for entry in manifest:
+        audio, rate = load_audio(MIXTURE_DIR / entry["wav"])
+        reference_turns = [Turn(**t) for t in entry["turns"]]
+        raw = detect_speech(audio, rate, threshold=cfg.vad_threshold)
+        regions = merge_regions(raw, min_gap=cfg.min_gap, min_duration=cfg.min_duration)
+        windows = slice_windows(regions, window=cfg.window, stride=cfg.stride)
+        embeddings = embedder.embed_windows(audio, rate, windows)
+
+        row = {"id": entry["id"], "num_speakers_ref": entry["num_speakers"], "by_threshold": {}}
+        for t in thresholds:
+            labels = cluster_embeddings(embeddings, distance_threshold=float(t))
+            hyp_turns = windows_to_turns(windows, labels)
+            d = der(reference_turns, hyp_turns, collar=args.collar)
+            row["by_threshold"][t] = {
+                "der": round(d.der, 4),
+                "miss": d.missed,
+                "false_alarm": d.false_alarm,
+                "confusion": d.confusion,
+                "ref_time": d.total_reference,
+                "num_speakers_hyp": len({x.speaker for x in hyp_turns}),
+            }
+        rows.append(row)
+        print(f"{entry['id']}: embedded {len(windows)} windows, swept", file=sys.stderr)
+
+    # Even-index mixtures calibrate, odd-index mixtures evaluate. The
+    # speaker counts cycle 2/3/4 by index, so both halves stay balanced.
+    calibration = rows[0::2]
+    heldout = rows[1::2]
+    chosen = pick_threshold(calibration, thresholds)
+
+    grid = {}
+    for t in thresholds:
+        count_ok = sum(
+            1 for r in rows if r["by_threshold"][t]["num_speakers_hyp"] == r["num_speakers_ref"]
+        )
+        grid[t] = {
+            "calibration_der": round(pooled_der_at(calibration, t), 4),
+            "heldout_der": round(pooled_der_at(heldout, t), 4),
+            "all_der": round(pooled_der_at(rows, t), 4),
+            "speaker_count_correct": f"{count_ok}/{len(rows)}",
+        }
+
+    summary = {
+        "config": {
+            "device": args.device,
+            "collar": args.collar,
+            "grid": [float(t) for t in thresholds],
+            "calibration_mixtures": [r["id"] for r in calibration],
+            "heldout_mixtures": [r["id"] for r in heldout],
+        },
+        "chosen_threshold": float(chosen),
+        "chosen_heldout_der": grid[chosen]["heldout_der"],
+        "default_threshold": ClusteredConfig.distance_threshold,
+        "default_heldout_der": grid[f"{ClusteredConfig.distance_threshold:.2f}"]["heldout_der"]
+        if f"{ClusteredConfig.distance_threshold:.2f}" in grid
+        else None,
+        "grid": grid,
+        "per_mixture": rows,
+    }
+    out_json = REPORT_DIR / "threshold_sweep.json"
+    out_json.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps({k: v for k, v in summary.items() if k not in ("grid", "per_mixture")}))
+    for t in thresholds:
+        print(f"  {t}: calib={grid[t]['calibration_der']:.4f} heldout={grid[t]['heldout_der']:.4f} "
+              f"all={grid[t]['all_der']:.4f} count={grid[t]['speaker_count_correct']}")
     print(f"wrote {out_json}", file=sys.stderr)
     return 0
 
@@ -282,6 +397,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="give the diarizer the true speaker count (upper-bound condition)",
     )
     p_run.set_defaults(func=cmd_run)
+
+    p_sweep = sub.add_parser("sweep", help="calibrate the clustering distance threshold")
+    p_sweep.add_argument("--lo", type=float, default=0.30)
+    p_sweep.add_argument("--hi", type=float, default=0.90)
+    p_sweep.add_argument("--step", type=float, default=0.05)
+    p_sweep.add_argument("--device", default="cpu", choices=["cpu", "cuda"])
+    p_sweep.add_argument("--collar", type=float, default=0.25)
+    p_sweep.set_defaults(func=cmd_sweep)
     return parser
 
 

@@ -2,9 +2,9 @@
 
 Three subcommands, one per stage of interest:
 
-- `diarlab transcribe audio.wav` -- ASR only, with word timestamps.
-- `diarlab diarize audio.wav` -- who spoke when, no transcription.
-- `diarlab attribute audio.wav` -- the full pipeline: transcribe, diarize,
+- `diarlab transcribe audio.wav` runs ASR only, with word timestamps.
+- `diarlab diarize audio.wav` labels who spoke when, no transcription.
+- `diarlab attribute audio.wav` runs the full pipeline: transcribe, diarize,
   align, and emit speaker-attributed JSON and/or SRT.
 """
 
@@ -15,6 +15,7 @@ import sys
 from pathlib import Path
 
 from .align import assign_words, group_segments
+from .diarize import ClusteredConfig
 from .formats import segments_to_json, segments_to_srt, turns_to_rttm
 from .types import Segment
 
@@ -38,7 +39,7 @@ def _add_diarize_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--distance-threshold",
         type=float,
-        default=0.6,
+        default=ClusteredConfig.distance_threshold,
         help="clustered backend: cosine distance cut for the dendrogram",
     )
 

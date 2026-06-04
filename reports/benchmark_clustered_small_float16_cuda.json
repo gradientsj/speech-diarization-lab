@@ -6,15 +6,16 @@
     "backend": "clustered",
     "collar": 0.25,
     "oracle_speaker_count": false,
+    "distance_threshold": 0.75,
     "mixtures": 12
   },
   "overall": {
     "wer": 0.0284,
-    "der": 0.0564,
+    "der": 0.0436,
     "der_miss": 0.0436,
     "der_false_alarm": 0.0,
-    "der_confusion": 0.0128,
-    "mean_rtf_asr": 0.0216
+    "der_confusion": 0.0,
+    "mean_rtf_asr": 0.0246
   },
   "per_mixture": [
     {
@@ -24,25 +25,25 @@
       "num_speakers_hyp": 2,
       "wer": 0.0448,
       "der": 0.0806,
-      "rtf_asr": 0.0253
+      "rtf_asr": 0.029
     },
     {
       "id": "mix_001",
       "duration": 50.202,
       "num_speakers_ref": 3,
-      "num_speakers_hyp": 4,
+      "num_speakers_hyp": 3,
       "wer": 0.0576,
-      "der": 0.0494,
-      "rtf_asr": 0.0226
+      "der": 0.0122,
+      "rtf_asr": 0.0312
     },
     {
       "id": "mix_002",
       "duration": 53.301,
       "num_speakers_ref": 4,
-      "num_speakers_hyp": 5,
+      "num_speakers_hyp": 4,
       "wer": 0.0075,
-      "der": 0.0669,
-      "rtf_asr": 0.0205
+      "der": 0.0416,
+      "rtf_asr": 0.0273
     },
     {
       "id": "mix_003",
@@ -51,7 +52,7 @@
       "num_speakers_hyp": 2,
       "wer": 0.0,
       "der": 0.0425,
-      "rtf_asr": 0.0184
+      "rtf_asr": 0.0248
     },
     {
       "id": "mix_004",
@@ -60,7 +61,7 @@
       "num_speakers_hyp": 3,
       "wer": 0.0141,
       "der": 0.0435,
-      "rtf_asr": 0.0212
+      "rtf_asr": 0.0288
     },
     {
       "id": "mix_005",
@@ -69,7 +70,7 @@
       "num_speakers_hyp": 4,
       "wer": 0.0208,
       "der": 0.06,
-      "rtf_asr": 0.02
+      "rtf_asr": 0.0246
     },
     {
       "id": "mix_006",
@@ -78,7 +79,7 @@
       "num_speakers_hyp": 2,
       "wer": 0.0382,
       "der": 0.0784,
-      "rtf_asr": 0.0222
+      "rtf_asr": 0.0224
     },
     {
       "id": "mix_007",
@@ -87,7 +88,7 @@
       "num_speakers_hyp": 3,
       "wer": 0.0155,
       "der": 0.0301,
-      "rtf_asr": 0.0208
+      "rtf_asr": 0.0207
     },
     {
       "id": "mix_008",
@@ -96,34 +97,34 @@
       "num_speakers_hyp": 4,
       "wer": 0.0962,
       "der": 0.0218,
-      "rtf_asr": 0.0199
+      "rtf_asr": 0.0195
     },
     {
       "id": "mix_009",
       "duration": 46.854,
       "num_speakers_ref": 2,
-      "num_speakers_hyp": 3,
+      "num_speakers_hyp": 2,
       "wer": 0.0,
-      "der": 0.0684,
-      "rtf_asr": 0.0207
+      "der": 0.0506,
+      "rtf_asr": 0.0205
     },
     {
       "id": "mix_010",
       "duration": 63.902,
       "num_speakers_ref": 3,
-      "num_speakers_hyp": 4,
+      "num_speakers_hyp": 3,
       "wer": 0.0181,
-      "der": 0.0442,
-      "rtf_asr": 0.0216
+      "der": 0.0229,
+      "rtf_asr": 0.0224
     },
     {
       "id": "mix_011",
       "duration": 38.219,
       "num_speakers_ref": 4,
-      "num_speakers_hyp": 6,
+      "num_speakers_hyp": 4,
       "wer": 0.05,
-      "der": 0.1082,
-      "rtf_asr": 0.0259
+      "der": 0.0239,
+      "rtf_asr": 0.0242
     }
   ]
 }

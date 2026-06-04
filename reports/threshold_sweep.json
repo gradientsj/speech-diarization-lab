@@ -1,0 +1,1443 @@
+{
+  "config": {
+    "device": "cuda",
+    "collar": 0.25,
+    "grid": [
+      0.3,
+      0.35,
+      0.4,
+      0.45,
+      0.5,
+      0.55,
+      0.6,
+      0.65,
+      0.7,
+      0.75,
+      0.8,
+      0.85,
+      0.9
+    ],
+    "calibration_mixtures": [
+      "mix_000",
+      "mix_002",
+      "mix_004",
+      "mix_006",
+      "mix_008",
+      "mix_010"
+    ],
+    "heldout_mixtures": [
+      "mix_001",
+      "mix_003",
+      "mix_005",
+      "mix_007",
+      "mix_009",
+      "mix_011"
+    ]
+  },
+  "chosen_threshold": 0.75,
+  "chosen_heldout_der": 0.0373,
+  "default_threshold": 0.6,
+  "default_heldout_der": 0.0552,
+  "grid": {
+    "0.30": {
+      "calibration_der": 0.8454,
+      "heldout_der": 0.8254,
+      "all_der": 0.8358,
+      "speaker_count_correct": "0/12"
+    },
+    "0.35": {
+      "calibration_der": 0.8107,
+      "heldout_der": 0.7916,
+      "all_der": 0.8015,
+      "speaker_count_correct": "0/12"
+    },
+    "0.40": {
+      "calibration_der": 0.6975,
+      "heldout_der": 0.665,
+      "all_der": 0.6819,
+      "speaker_count_correct": "0/12"
+    },
+    "0.45": {
+      "calibration_der": 0.5247,
+      "heldout_der": 0.5314,
+      "all_der": 0.528,
+      "speaker_count_correct": "0/12"
+    },
+    "0.50": {
+      "calibration_der": 0.2883,
+      "heldout_der": 0.3262,
+      "all_der": 0.3065,
+      "speaker_count_correct": "0/12"
+    },
+    "0.55": {
+      "calibration_der": 0.1736,
+      "heldout_der": 0.1578,
+      "all_der": 0.166,
+      "speaker_count_correct": "3/12"
+    },
+    "0.60": {
+      "calibration_der": 0.0575,
+      "heldout_der": 0.0552,
+      "all_der": 0.0564,
+      "speaker_count_correct": "7/12"
+    },
+    "0.65": {
+      "calibration_der": 0.0575,
+      "heldout_der": 0.0442,
+      "all_der": 0.0511,
+      "speaker_count_correct": "8/12"
+    },
+    "0.70": {
+      "calibration_der": 0.0534,
+      "heldout_der": 0.0442,
+      "all_der": 0.049,
+      "speaker_count_correct": "9/12"
+    },
+    "0.75": {
+      "calibration_der": 0.0494,
+      "heldout_der": 0.0373,
+      "all_der": 0.0436,
+      "speaker_count_correct": "12/12"
+    },
+    "0.80": {
+      "calibration_der": 0.0494,
+      "heldout_der": 0.0562,
+      "all_der": 0.0527,
+      "speaker_count_correct": "11/12"
+    },
+    "0.85": {
+      "calibration_der": 0.0494,
+      "heldout_der": 0.115,
+      "all_der": 0.0809,
+      "speaker_count_correct": "10/12"
+    },
+    "0.90": {
+      "calibration_der": 0.0705,
+      "heldout_der": 0.3374,
+      "all_der": 0.1986,
+      "speaker_count_correct": "5/12"
+    }
+  },
+  "per_mixture": [
+    {
+      "id": "mix_000",
+      "num_speakers_ref": 2,
+      "by_threshold": {
+        "0.30": {
+          "der": 0.8863,
+          "miss": 4.228325467021203,
+          "false_alarm": 0.0,
+          "confusion": 38.740275812110546,
+          "ref_time": 48.48000000000001,
+          "num_speakers_hyp": 27
+        },
+        "0.35": {
+          "der": 0.8608,
+          "miss": 4.228325467021203,
+          "false_alarm": 0.0,
+          "confusion": 37.501674532978804,
+          "ref_time": 48.48000000000001,
+          "num_speakers_hyp": 22
+        },
+        "0.40": {
+          "der": 0.6933,
+          "miss": 4.228325467021203,
+          "false_alarm": 0.0,
+          "confusion": 29.381098272093325,
+          "ref_time": 48.480000000000004,
+          "num_speakers_hyp": 16
+        },
+        "0.45": {
+          "der": 0.5941,
+          "miss": 4.228325467021203,
+          "false_alarm": 0.0,
+          "confusion": 24.57209827209334,
+          "ref_time": 48.480000000000004,
+          "num_speakers_hyp": 10
+        },
+        "0.50": {
+          "der": 0.1358,
+          "miss": 4.228325467021203,
+          "false_alarm": 0.0,
+          "confusion": 2.3549999999999995,
+          "ref_time": 48.480000000000004,
+          "num_speakers_hyp": 4
+        },
+        "0.55": {
+          "der": 0.105,
+          "miss": 4.228325467021203,
+          "false_alarm": 0.0,
+          "confusion": 0.8609999999999998,
+          "ref_time": 48.480000000000004,
+          "num_speakers_hyp": 3
+        },
+        "0.60": {
+          "der": 0.0806,
+          "miss": 3.9083254670212026,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 48.480000000000004,
+          "num_speakers_hyp": 2
+        },
+        "0.65": {
+          "der": 0.0806,
+          "miss": 3.9083254670212026,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 48.480000000000004,
+          "num_speakers_hyp": 2
+        },
+        "0.70": {
+          "der": 0.0806,
+          "miss": 3.9083254670212026,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 48.480000000000004,
+          "num_speakers_hyp": 2
+        },
+        "0.75": {
+          "der": 0.0806,
+          "miss": 3.9083254670212026,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 48.480000000000004,
+          "num_speakers_hyp": 2
+        },
+        "0.80": {
+          "der": 0.0806,
+          "miss": 3.9083254670212026,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 48.480000000000004,
+          "num_speakers_hyp": 2
+        },
+        "0.85": {
+          "der": 0.0806,
+          "miss": 3.9083254670212026,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 48.480000000000004,
+          "num_speakers_hyp": 2
+        },
+        "0.90": {
+          "der": 0.0806,
+          "miss": 3.9083254670212026,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 48.480000000000004,
+          "num_speakers_hyp": 2
+        }
+      }
+    },
+    {
+      "id": "mix_001",
+      "num_speakers_ref": 3,
+      "by_threshold": {
+        "0.30": {
+          "der": 0.8289,
+          "miss": 0.8580732126702122,
+          "false_alarm": 0.0,
+          "confusion": 31.368098530508835,
+          "ref_time": 38.88,
+          "num_speakers_hyp": 28
+        },
+        "0.35": {
+          "der": 0.7638,
+          "miss": 0.8580732126702122,
+          "false_alarm": 0.0,
+          "confusion": 28.839375320864246,
+          "ref_time": 38.88,
+          "num_speakers_hyp": 23
+        },
+        "0.40": {
+          "der": 0.5938,
+          "miss": 0.8580732126702122,
+          "false_alarm": 0.0,
+          "confusion": 22.228098530508834,
+          "ref_time": 38.879999999999995,
+          "num_speakers_hyp": 17
+        },
+        "0.45": {
+          "der": 0.5196,
+          "miss": 0.8580732126702122,
+          "false_alarm": 0.0,
+          "confusion": 19.343896705015926,
+          "ref_time": 38.879999999999995,
+          "num_speakers_hyp": 12
+        },
+        "0.50": {
+          "der": 0.3406,
+          "miss": 0.8580732126702122,
+          "false_alarm": 0.0,
+          "confusion": 12.382896705015925,
+          "ref_time": 38.879999999999995,
+          "num_speakers_hyp": 8
+        },
+        "0.55": {
+          "der": 0.0494,
+          "miss": 0.47407321267021185,
+          "false_alarm": 0.0,
+          "confusion": 1.4450755047064554,
+          "ref_time": 38.879999999999995,
+          "num_speakers_hyp": 4
+        },
+        "0.60": {
+          "der": 0.0494,
+          "miss": 0.47407321267021185,
+          "false_alarm": 0.0,
+          "confusion": 1.4450755047064554,
+          "ref_time": 38.879999999999995,
+          "num_speakers_hyp": 4
+        },
+        "0.65": {
+          "der": 0.0122,
+          "miss": 0.47407321267021185,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 38.879999999999995,
+          "num_speakers_hyp": 3
+        },
+        "0.70": {
+          "der": 0.0122,
+          "miss": 0.47407321267021185,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 38.879999999999995,
+          "num_speakers_hyp": 3
+        },
+        "0.75": {
+          "der": 0.0122,
+          "miss": 0.47407321267021185,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 38.879999999999995,
+          "num_speakers_hyp": 3
+        },
+        "0.80": {
+          "der": 0.0122,
+          "miss": 0.47407321267021185,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 38.879999999999995,
+          "num_speakers_hyp": 3
+        },
+        "0.85": {
+          "der": 0.0122,
+          "miss": 0.47407321267021185,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 38.879999999999995,
+          "num_speakers_hyp": 3
+        },
+        "0.90": {
+          "der": 0.2548,
+          "miss": 0.47407321267021185,
+          "false_alarm": 0.0,
+          "confusion": 9.430828256820956,
+          "ref_time": 38.879999999999995,
+          "num_speakers_hyp": 2
+        }
+      }
+    },
+    {
+      "id": "mix_002",
+      "num_speakers_ref": 4,
+      "by_threshold": {
+        "0.30": {
+          "der": 0.8033,
+          "miss": 2.476709092977555,
+          "false_alarm": 0.0,
+          "confusion": 32.96028970739946,
+          "ref_time": 44.114999999999995,
+          "num_speakers_hyp": 29
+        },
+        "0.35": {
+          "der": 0.7773,
+          "miss": 2.476709092977555,
+          "false_alarm": 0.0,
+          "confusion": 31.81536609648623,
+          "ref_time": 44.114999999999995,
+          "num_speakers_hyp": 26
+        },
+        "0.40": {
+          "der": 0.7505,
+          "miss": 2.476709092977555,
+          "false_alarm": 0.0,
+          "confusion": 30.633290907022435,
+          "ref_time": 44.114999999999995,
+          "num_speakers_hyp": 24
+        },
+        "0.45": {
+          "der": 0.5767,
+          "miss": 2.476709092977555,
+          "false_alarm": 0.0,
+          "confusion": 22.965366096486232,
+          "ref_time": 44.114999999999995,
+          "num_speakers_hyp": 19
+        },
+        "0.50": {
+          "der": 0.3492,
+          "miss": 2.476709092977555,
+          "false_alarm": 0.0,
+          "confusion": 12.926044038169973,
+          "ref_time": 44.114999999999995,
+          "num_speakers_hyp": 10
+        },
+        "0.55": {
+          "der": 0.181,
+          "miss": 2.1567090929775583,
+          "false_alarm": 0.0,
+          "confusion": 5.828044038169971,
+          "ref_time": 44.114999999999995,
+          "num_speakers_hyp": 8
+        },
+        "0.60": {
+          "der": 0.0669,
+          "miss": 1.836709092977558,
+          "false_alarm": 0.0,
+          "confusion": 1.1137543307705187,
+          "ref_time": 44.114999999999995,
+          "num_speakers_hyp": 5
+        },
+        "0.65": {
+          "der": 0.0669,
+          "miss": 1.836709092977558,
+          "false_alarm": 0.0,
+          "confusion": 1.1137543307705187,
+          "ref_time": 44.114999999999995,
+          "num_speakers_hyp": 5
+        },
+        "0.70": {
+          "der": 0.0669,
+          "miss": 1.836709092977558,
+          "false_alarm": 0.0,
+          "confusion": 1.1137543307705187,
+          "ref_time": 44.114999999999995,
+          "num_speakers_hyp": 5
+        },
+        "0.75": {
+          "der": 0.0416,
+          "miss": 1.836709092977558,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 44.114999999999995,
+          "num_speakers_hyp": 4
+        },
+        "0.80": {
+          "der": 0.0416,
+          "miss": 1.836709092977558,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 44.114999999999995,
+          "num_speakers_hyp": 4
+        },
+        "0.85": {
+          "der": 0.0416,
+          "miss": 1.836709092977558,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 44.114999999999995,
+          "num_speakers_hyp": 4
+        },
+        "0.90": {
+          "der": 0.1744,
+          "miss": 1.836709092977558,
+          "false_alarm": 0.0,
+          "confusion": 5.855,
+          "ref_time": 44.114999999999995,
+          "num_speakers_hyp": 3
+        }
+      }
+    },
+    {
+      "id": "mix_003",
+      "num_speakers_ref": 2,
+      "by_threshold": {
+        "0.30": {
+          "der": 0.8713,
+          "miss": 2.0894930734926236,
+          "false_alarm": 0.0,
+          "confusion": 34.1945391875156,
+          "ref_time": 41.645,
+          "num_speakers_hyp": 25
+        },
+        "0.35": {
+          "der": 0.8559,
+          "miss": 2.0894930734926236,
+          "false_alarm": 0.0,
+          "confusion": 33.55650692650738,
+          "ref_time": 41.64500000000001,
+          "num_speakers_hyp": 22
+        },
+        "0.40": {
+          "der": 0.7424,
+          "miss": 2.0894930734926236,
+          "false_alarm": 0.0,
+          "confusion": 28.826539187515603,
+          "ref_time": 41.64500000000001,
+          "num_speakers_hyp": 16
+        },
+        "0.45": {
+          "der": 0.652,
+          "miss": 2.0894930734926236,
+          "false_alarm": 0.0,
+          "confusion": 25.06451933371489,
+          "ref_time": 41.64500000000001,
+          "num_speakers_hyp": 10
+        },
+        "0.50": {
+          "der": 0.334,
+          "miss": 2.0894930734926236,
+          "false_alarm": 0.0,
+          "confusion": 11.818019853800706,
+          "ref_time": 41.64500000000001,
+          "num_speakers_hyp": 6
+        },
+        "0.55": {
+          "der": 0.0708,
+          "miss": 2.0894930734926236,
+          "false_alarm": 0.0,
+          "confusion": 0.8609999999999998,
+          "ref_time": 41.64500000000001,
+          "num_speakers_hyp": 3
+        },
+        "0.60": {
+          "der": 0.0425,
+          "miss": 1.7694930734926237,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 41.64500000000001,
+          "num_speakers_hyp": 2
+        },
+        "0.65": {
+          "der": 0.0425,
+          "miss": 1.7694930734926237,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 41.64500000000001,
+          "num_speakers_hyp": 2
+        },
+        "0.70": {
+          "der": 0.0425,
+          "miss": 1.7694930734926237,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 41.64500000000001,
+          "num_speakers_hyp": 2
+        },
+        "0.75": {
+          "der": 0.0425,
+          "miss": 1.7694930734926237,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 41.64500000000001,
+          "num_speakers_hyp": 2
+        },
+        "0.80": {
+          "der": 0.0425,
+          "miss": 1.7694930734926237,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 41.64500000000001,
+          "num_speakers_hyp": 2
+        },
+        "0.85": {
+          "der": 0.0425,
+          "miss": 1.7694930734926237,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 41.64500000000001,
+          "num_speakers_hyp": 2
+        },
+        "0.90": {
+          "der": 0.4726,
+          "miss": 1.7694930734926237,
+          "false_alarm": 0.0,
+          "confusion": 17.912539187515605,
+          "ref_time": 41.64500000000001,
+          "num_speakers_hyp": 1
+        }
+      }
+    },
+    {
+      "id": "mix_004",
+      "num_speakers_ref": 3,
+      "by_threshold": {
+        "0.30": {
+          "der": 0.8473,
+          "miss": 1.9637650956349946,
+          "false_alarm": 0.0,
+          "confusion": 36.30600881798493,
+          "ref_time": 45.165,
+          "num_speakers_hyp": 30
+        },
+        "0.35": {
+          "der": 0.8171,
+          "miss": 1.9637650956349946,
+          "false_alarm": 0.0,
+          "confusion": 34.94250189127555,
+          "ref_time": 45.165,
+          "num_speakers_hyp": 28
+        },
+        "0.40": {
+          "der": 0.75,
+          "miss": 1.9637650956349946,
+          "false_alarm": 0.0,
+          "confusion": 31.91150189127554,
+          "ref_time": 45.165,
+          "num_speakers_hyp": 24
+        },
+        "0.45": {
+          "der": 0.4935,
+          "miss": 1.9637650956349946,
+          "false_alarm": 0.0,
+          "confusion": 20.322999999999993,
+          "ref_time": 45.165,
+          "num_speakers_hyp": 14
+        },
+        "0.50": {
+          "der": 0.4151,
+          "miss": 1.9637650956349946,
+          "false_alarm": 0.0,
+          "confusion": 16.783999999999992,
+          "ref_time": 45.165,
+          "num_speakers_hyp": 11
+        },
+        "0.55": {
+          "der": 0.288,
+          "miss": 1.9637650956349946,
+          "false_alarm": 0.0,
+          "confusion": 11.0457656090785,
+          "ref_time": 45.165,
+          "num_speakers_hyp": 5
+        },
+        "0.60": {
+          "der": 0.0435,
+          "miss": 1.9637650956349946,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 45.165,
+          "num_speakers_hyp": 3
+        },
+        "0.65": {
+          "der": 0.0435,
+          "miss": 1.9637650956349946,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 45.165,
+          "num_speakers_hyp": 3
+        },
+        "0.70": {
+          "der": 0.0435,
+          "miss": 1.9637650956349946,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 45.165,
+          "num_speakers_hyp": 3
+        },
+        "0.75": {
+          "der": 0.0435,
+          "miss": 1.9637650956349946,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 45.165,
+          "num_speakers_hyp": 3
+        },
+        "0.80": {
+          "der": 0.0435,
+          "miss": 1.9637650956349946,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 45.165,
+          "num_speakers_hyp": 3
+        },
+        "0.85": {
+          "der": 0.0435,
+          "miss": 1.9637650956349946,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 45.165,
+          "num_speakers_hyp": 3
+        },
+        "0.90": {
+          "der": 0.0435,
+          "miss": 1.9637650956349946,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 45.165,
+          "num_speakers_hyp": 3
+        }
+      }
+    },
+    {
+      "id": "mix_005",
+      "num_speakers_ref": 4,
+      "by_threshold": {
+        "0.30": {
+          "der": 0.797,
+          "miss": 2.969083610153195,
+          "false_alarm": 0.0,
+          "confusion": 36.48391638984681,
+          "ref_time": 49.5,
+          "num_speakers_hyp": 31
+        },
+        "0.35": {
+          "der": 0.7156,
+          "miss": 2.969083610153195,
+          "false_alarm": 0.0,
+          "confusion": 32.45391638984681,
+          "ref_time": 49.5,
+          "num_speakers_hyp": 24
+        },
+        "0.40": {
+          "der": 0.5849,
+          "miss": 2.969083610153195,
+          "false_alarm": 0.0,
+          "confusion": 25.98391638984681,
+          "ref_time": 49.5,
+          "num_speakers_hyp": 18
+        },
+        "0.45": {
+          "der": 0.296,
+          "miss": 2.969083610153195,
+          "false_alarm": 0.0,
+          "confusion": 11.6831335351215,
+          "ref_time": 49.5,
+          "num_speakers_hyp": 9
+        },
+        "0.50": {
+          "der": 0.131,
+          "miss": 2.969083610153195,
+          "false_alarm": 0.0,
+          "confusion": 3.517778564336,
+          "ref_time": 49.49999999999999,
+          "num_speakers_hyp": 7
+        },
+        "0.55": {
+          "der": 0.06,
+          "miss": 2.969083610153195,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 49.49999999999999,
+          "num_speakers_hyp": 4
+        },
+        "0.60": {
+          "der": 0.06,
+          "miss": 2.969083610153195,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 49.49999999999999,
+          "num_speakers_hyp": 4
+        },
+        "0.65": {
+          "der": 0.06,
+          "miss": 2.969083610153195,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 49.49999999999999,
+          "num_speakers_hyp": 4
+        },
+        "0.70": {
+          "der": 0.06,
+          "miss": 2.969083610153195,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 49.49999999999999,
+          "num_speakers_hyp": 4
+        },
+        "0.75": {
+          "der": 0.06,
+          "miss": 2.969083610153195,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 49.49999999999999,
+          "num_speakers_hyp": 4
+        },
+        "0.80": {
+          "der": 0.06,
+          "miss": 2.969083610153195,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 49.49999999999999,
+          "num_speakers_hyp": 4
+        },
+        "0.85": {
+          "der": 0.2462,
+          "miss": 2.969083610153195,
+          "false_alarm": 0.0,
+          "confusion": 9.216000000000001,
+          "ref_time": 49.49999999999999,
+          "num_speakers_hyp": 3
+        },
+        "0.90": {
+          "der": 0.2462,
+          "miss": 2.969083610153195,
+          "false_alarm": 0.0,
+          "confusion": 9.216000000000001,
+          "ref_time": 49.49999999999999,
+          "num_speakers_hyp": 3
+        }
+      }
+    },
+    {
+      "id": "mix_006",
+      "num_speakers_ref": 2,
+      "by_threshold": {
+        "0.30": {
+          "der": 0.8992,
+          "miss": 4.398447013984601,
+          "false_alarm": 0.0,
+          "confusion": 41.6325529860154,
+          "ref_time": 51.19,
+          "num_speakers_hyp": 30
+        },
+        "0.35": {
+          "der": 0.8351,
+          "miss": 4.398447013984601,
+          "false_alarm": 0.0,
+          "confusion": 38.352552986015404,
+          "ref_time": 51.19,
+          "num_speakers_hyp": 23
+        },
+        "0.40": {
+          "der": 0.7103,
+          "miss": 4.398447013984601,
+          "false_alarm": 0.0,
+          "confusion": 31.96015101715086,
+          "ref_time": 51.19,
+          "num_speakers_hyp": 17
+        },
+        "0.45": {
+          "der": 0.5739,
+          "miss": 4.398447013984601,
+          "false_alarm": 0.0,
+          "confusion": 24.981151017150875,
+          "ref_time": 51.19,
+          "num_speakers_hyp": 12
+        },
+        "0.50": {
+          "der": 0.2968,
+          "miss": 4.398447013984601,
+          "false_alarm": 0.0,
+          "confusion": 10.793000000000003,
+          "ref_time": 51.19,
+          "num_speakers_hyp": 5
+        },
+        "0.55": {
+          "der": 0.0784,
+          "miss": 4.014447013984601,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 51.19,
+          "num_speakers_hyp": 2
+        },
+        "0.60": {
+          "der": 0.0784,
+          "miss": 4.014447013984601,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 51.19,
+          "num_speakers_hyp": 2
+        },
+        "0.65": {
+          "der": 0.0784,
+          "miss": 4.014447013984601,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 51.19,
+          "num_speakers_hyp": 2
+        },
+        "0.70": {
+          "der": 0.0784,
+          "miss": 4.014447013984601,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 51.19,
+          "num_speakers_hyp": 2
+        },
+        "0.75": {
+          "der": 0.0784,
+          "miss": 4.014447013984601,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 51.19,
+          "num_speakers_hyp": 2
+        },
+        "0.80": {
+          "der": 0.0784,
+          "miss": 4.014447013984601,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 51.19,
+          "num_speakers_hyp": 2
+        },
+        "0.85": {
+          "der": 0.0784,
+          "miss": 4.014447013984601,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 51.19,
+          "num_speakers_hyp": 2
+        },
+        "0.90": {
+          "der": 0.0784,
+          "miss": 4.014447013984601,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 51.19,
+          "num_speakers_hyp": 2
+        }
+      }
+    },
+    {
+      "id": "mix_007",
+      "num_speakers_ref": 3,
+      "by_threshold": {
+        "0.30": {
+          "der": 0.8562,
+          "miss": 1.8326885356055287,
+          "false_alarm": 0.0,
+          "confusion": 50.269561718248,
+          "ref_time": 60.85499999999999,
+          "num_speakers_hyp": 44
+        },
+        "0.35": {
+          "der": 0.8507,
+          "miss": 1.8326885356055287,
+          "false_alarm": 0.0,
+          "confusion": 49.934561718248,
+          "ref_time": 60.85499999999999,
+          "num_speakers_hyp": 38
+        },
+        "0.40": {
+          "der": 0.7447,
+          "miss": 1.8326885356055287,
+          "false_alarm": 0.0,
+          "confusion": 43.48856171824799,
+          "ref_time": 60.85499999999999,
+          "num_speakers_hyp": 30
+        },
+        "0.45": {
+          "der": 0.6009,
+          "miss": 1.8326885356055287,
+          "false_alarm": 0.0,
+          "confusion": 34.737561718247996,
+          "ref_time": 60.85499999999999,
+          "num_speakers_hyp": 21
+        },
+        "0.50": {
+          "der": 0.3416,
+          "miss": 1.8326885356055287,
+          "false_alarm": 0.0,
+          "confusion": 18.95599999999999,
+          "ref_time": 60.85499999999999,
+          "num_speakers_hyp": 13
+        },
+        "0.55": {
+          "der": 0.2551,
+          "miss": 1.8326885356055287,
+          "false_alarm": 0.0,
+          "confusion": 13.689,
+          "ref_time": 60.85499999999999,
+          "num_speakers_hyp": 7
+        },
+        "0.60": {
+          "der": 0.0301,
+          "miss": 1.8326885356055287,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 60.85499999999999,
+          "num_speakers_hyp": 3
+        },
+        "0.65": {
+          "der": 0.0301,
+          "miss": 1.8326885356055287,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 60.85499999999999,
+          "num_speakers_hyp": 3
+        },
+        "0.70": {
+          "der": 0.0301,
+          "miss": 1.8326885356055287,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 60.85499999999999,
+          "num_speakers_hyp": 3
+        },
+        "0.75": {
+          "der": 0.0301,
+          "miss": 1.8326885356055287,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 60.85499999999999,
+          "num_speakers_hyp": 3
+        },
+        "0.80": {
+          "der": 0.0301,
+          "miss": 1.8326885356055287,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 60.85499999999999,
+          "num_speakers_hyp": 3
+        },
+        "0.85": {
+          "der": 0.0301,
+          "miss": 1.8326885356055287,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 60.85499999999999,
+          "num_speakers_hyp": 3
+        },
+        "0.90": {
+          "der": 0.3307,
+          "miss": 1.8326885356055287,
+          "false_alarm": 0.0,
+          "confusion": 18.29474974614645,
+          "ref_time": 60.85499999999999,
+          "num_speakers_hyp": 2
+        }
+      }
+    },
+    {
+      "id": "mix_008",
+      "num_speakers_ref": 4,
+      "by_threshold": {
+        "0.30": {
+          "der": 0.7515,
+          "miss": 1.1699565426556973,
+          "false_alarm": 0.0,
+          "confusion": 25.868346492903726,
+          "ref_time": 35.97999999999999,
+          "num_speakers_hyp": 22
+        },
+        "0.35": {
+          "der": 0.695,
+          "miss": 1.1699565426556973,
+          "false_alarm": 0.0,
+          "confusion": 23.835924314188176,
+          "ref_time": 35.97999999999999,
+          "num_speakers_hyp": 18
+        },
+        "0.40": {
+          "der": 0.4974,
+          "miss": 1.1699565426556973,
+          "false_alarm": 0.0,
+          "confusion": 16.727323610142964,
+          "ref_time": 35.97999999999999,
+          "num_speakers_hyp": 15
+        },
+        "0.45": {
+          "der": 0.3982,
+          "miss": 1.1699565426556973,
+          "false_alarm": 0.0,
+          "confusion": 13.158621464102321,
+          "ref_time": 35.97999999999999,
+          "num_speakers_hyp": 10
+        },
+        "0.50": {
+          "der": 0.0488,
+          "miss": 0.7859565426557005,
+          "false_alarm": 0.0,
+          "confusion": 0.9689999999999999,
+          "ref_time": 35.97999999999999,
+          "num_speakers_hyp": 5
+        },
+        "0.55": {
+          "der": 0.0218,
+          "miss": 0.7859565426557005,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 35.97999999999999,
+          "num_speakers_hyp": 4
+        },
+        "0.60": {
+          "der": 0.0218,
+          "miss": 0.7859565426557005,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 35.97999999999999,
+          "num_speakers_hyp": 4
+        },
+        "0.65": {
+          "der": 0.0218,
+          "miss": 0.7859565426557005,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 35.97999999999999,
+          "num_speakers_hyp": 4
+        },
+        "0.70": {
+          "der": 0.0218,
+          "miss": 0.7859565426557005,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 35.97999999999999,
+          "num_speakers_hyp": 4
+        },
+        "0.75": {
+          "der": 0.0218,
+          "miss": 0.7859565426557005,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 35.97999999999999,
+          "num_speakers_hyp": 4
+        },
+        "0.80": {
+          "der": 0.0218,
+          "miss": 0.7859565426557005,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 35.97999999999999,
+          "num_speakers_hyp": 4
+        },
+        "0.85": {
+          "der": 0.0218,
+          "miss": 0.7859565426557005,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 35.97999999999999,
+          "num_speakers_hyp": 4
+        },
+        "0.90": {
+          "der": 0.0218,
+          "miss": 0.7859565426557005,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 35.97999999999999,
+          "num_speakers_hyp": 4
+        }
+      }
+    },
+    {
+      "id": "mix_009",
+      "num_speakers_ref": 2,
+      "by_threshold": {
+        "0.30": {
+          "der": 0.845,
+          "miss": 1.8246372831012385,
+          "false_alarm": 0.0,
+          "confusion": 28.620362716898757,
+          "ref_time": 36.03,
+          "num_speakers_hyp": 26
+        },
+        "0.35": {
+          "der": 0.8138,
+          "miss": 1.8246372831012385,
+          "false_alarm": 0.0,
+          "confusion": 27.496362716898762,
+          "ref_time": 36.03,
+          "num_speakers_hyp": 22
+        },
+        "0.40": {
+          "der": 0.7513,
+          "miss": 1.8246372831012385,
+          "false_alarm": 0.0,
+          "confusion": 25.246362716898762,
+          "ref_time": 36.03,
+          "num_speakers_hyp": 18
+        },
+        "0.45": {
+          "der": 0.6671,
+          "miss": 1.8246372831012385,
+          "false_alarm": 0.0,
+          "confusion": 22.212,
+          "ref_time": 36.03,
+          "num_speakers_hyp": 16
+        },
+        "0.50": {
+          "der": 0.5943,
+          "miss": 1.8246372831012385,
+          "false_alarm": 0.0,
+          "confusion": 19.587,
+          "ref_time": 36.03000000000001,
+          "num_speakers_hyp": 11
+        },
+        "0.55": {
+          "der": 0.3859,
+          "miss": 1.8246372831012385,
+          "false_alarm": 0.0,
+          "confusion": 12.078999999999997,
+          "ref_time": 36.03000000000001,
+          "num_speakers_hyp": 6
+        },
+        "0.60": {
+          "der": 0.0684,
+          "miss": 1.8246372831012385,
+          "false_alarm": 0.0,
+          "confusion": 0.64,
+          "ref_time": 36.03000000000001,
+          "num_speakers_hyp": 3
+        },
+        "0.65": {
+          "der": 0.0684,
+          "miss": 1.8246372831012385,
+          "false_alarm": 0.0,
+          "confusion": 0.64,
+          "ref_time": 36.03000000000001,
+          "num_speakers_hyp": 3
+        },
+        "0.70": {
+          "der": 0.0684,
+          "miss": 1.8246372831012385,
+          "false_alarm": 0.0,
+          "confusion": 0.64,
+          "ref_time": 36.03000000000001,
+          "num_speakers_hyp": 3
+        },
+        "0.75": {
+          "der": 0.0506,
+          "miss": 1.8246372831012385,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 36.03000000000001,
+          "num_speakers_hyp": 2
+        },
+        "0.80": {
+          "der": 0.0506,
+          "miss": 1.8246372831012385,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 36.03000000000001,
+          "num_speakers_hyp": 2
+        },
+        "0.85": {
+          "der": 0.0506,
+          "miss": 1.8246372831012385,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 36.03000000000001,
+          "num_speakers_hyp": 2
+        },
+        "0.90": {
+          "der": 0.3667,
+          "miss": 1.8246372831012385,
+          "false_alarm": 0.0,
+          "confusion": 11.386362716898766,
+          "ref_time": 36.03000000000001,
+          "num_speakers_hyp": 1
+        }
+      }
+    },
+    {
+      "id": "mix_010",
+      "num_speakers_ref": 3,
+      "by_threshold": {
+        "0.30": {
+          "der": 0.8533,
+          "miss": 1.5288698182299263,
+          "false_alarm": 0.0,
+          "confusion": 43.47912086600358,
+          "ref_time": 52.744937500000006,
+          "num_speakers_hyp": 37
+        },
+        "0.35": {
+          "der": 0.8421,
+          "miss": 1.5288698182299263,
+          "false_alarm": 0.0,
+          "confusion": 42.88912086600358,
+          "ref_time": 52.744937500000006,
+          "num_speakers_hyp": 31
+        },
+        "0.40": {
+          "der": 0.7362,
+          "miss": 1.5288698182299263,
+          "false_alarm": 0.0,
+          "confusion": 37.29999244355184,
+          "ref_time": 52.744937500000006,
+          "num_speakers_hyp": 25
+        },
+        "0.45": {
+          "der": 0.4828,
+          "miss": 1.5288698182299263,
+          "false_alarm": 0.0,
+          "confusion": 23.936619477858628,
+          "ref_time": 52.744937500000006,
+          "num_speakers_hyp": 15
+        },
+        "0.50": {
+          "der": 0.4243,
+          "miss": 1.5288698182299263,
+          "false_alarm": 0.0,
+          "confusion": 20.848619477858627,
+          "ref_time": 52.744937500000006,
+          "num_speakers_hyp": 11
+        },
+        "0.55": {
+          "der": 0.3286,
+          "miss": 1.5288698182299263,
+          "false_alarm": 0.0,
+          "confusion": 15.803946815766487,
+          "ref_time": 52.744937500000006,
+          "num_speakers_hyp": 8
+        },
+        "0.60": {
+          "der": 0.0442,
+          "miss": 1.208869818229919,
+          "false_alarm": 0.0,
+          "confusion": 1.125,
+          "ref_time": 52.744937500000006,
+          "num_speakers_hyp": 4
+        },
+        "0.65": {
+          "der": 0.0442,
+          "miss": 1.208869818229919,
+          "false_alarm": 0.0,
+          "confusion": 1.125,
+          "ref_time": 52.744937500000006,
+          "num_speakers_hyp": 4
+        },
+        "0.70": {
+          "der": 0.0229,
+          "miss": 1.208869818229919,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 52.744937500000006,
+          "num_speakers_hyp": 3
+        },
+        "0.75": {
+          "der": 0.0229,
+          "miss": 1.208869818229919,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 52.744937500000006,
+          "num_speakers_hyp": 3
+        },
+        "0.80": {
+          "der": 0.0229,
+          "miss": 1.208869818229919,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 52.744937500000006,
+          "num_speakers_hyp": 3
+        },
+        "0.85": {
+          "der": 0.0229,
+          "miss": 1.208869818229919,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 52.744937500000006,
+          "num_speakers_hyp": 3
+        },
+        "0.90": {
+          "der": 0.0229,
+          "miss": 1.208869818229919,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 52.744937500000006,
+          "num_speakers_hyp": 3
+        }
+      }
+    },
+    {
+      "id": "mix_011",
+      "num_speakers_ref": 4,
+      "by_threshold": {
+        "0.30": {
+          "der": 0.7158,
+          "miss": 0.7054626740294779,
+          "false_alarm": 0.0,
+          "confusion": 20.408434489089515,
+          "ref_time": 29.494999999999997,
+          "num_speakers_hyp": 20
+        },
+        "0.35": {
+          "der": 0.7158,
+          "miss": 0.7054626740294779,
+          "false_alarm": 0.0,
+          "confusion": 20.408434489089515,
+          "ref_time": 29.494999999999997,
+          "num_speakers_hyp": 18
+        },
+        "0.40": {
+          "der": 0.5136,
+          "miss": 0.7054626740294779,
+          "false_alarm": 0.0,
+          "confusion": 14.4444300823509,
+          "ref_time": 29.494999999999997,
+          "num_speakers_hyp": 14
+        },
+        "0.45": {
+          "der": 0.4628,
+          "miss": 0.7054626740294779,
+          "false_alarm": 0.0,
+          "confusion": 12.9444300823509,
+          "ref_time": 29.494999999999997,
+          "num_speakers_hyp": 11
+        },
+        "0.50": {
+          "der": 0.2646,
+          "miss": 0.7054626740294779,
+          "false_alarm": 0.0,
+          "confusion": 7.100278452167453,
+          "ref_time": 29.494999999999997,
+          "num_speakers_hyp": 8
+        },
+        "0.55": {
+          "der": 0.1082,
+          "miss": 0.7054626740294779,
+          "false_alarm": 0.0,
+          "confusion": 2.4862784521674524,
+          "ref_time": 29.494999999999997,
+          "num_speakers_hyp": 6
+        },
+        "0.60": {
+          "der": 0.1082,
+          "miss": 0.7054626740294779,
+          "false_alarm": 0.0,
+          "confusion": 2.4862784521674524,
+          "ref_time": 29.494999999999997,
+          "num_speakers_hyp": 6
+        },
+        "0.65": {
+          "der": 0.0621,
+          "miss": 0.7054626740294779,
+          "false_alarm": 0.0,
+          "confusion": 1.125,
+          "ref_time": 29.494999999999997,
+          "num_speakers_hyp": 5
+        },
+        "0.70": {
+          "der": 0.0621,
+          "miss": 0.7054626740294779,
+          "false_alarm": 0.0,
+          "confusion": 1.125,
+          "ref_time": 29.494999999999997,
+          "num_speakers_hyp": 5
+        },
+        "0.75": {
+          "der": 0.0239,
+          "miss": 0.7054626740294779,
+          "false_alarm": 0.0,
+          "confusion": 0.0,
+          "ref_time": 29.494999999999997,
+          "num_speakers_hyp": 4
+        },
+        "0.80": {
+          "der": 0.1881,
+          "miss": 0.7054626740294779,
+          "false_alarm": 0.0,
+          "confusion": 4.843047664793113,
+          "ref_time": 29.494999999999997,
+          "num_speakers_hyp": 3
+        },
+        "0.85": {
+          "der": 0.3863,
+          "miss": 0.7054626740294779,
+          "false_alarm": 0.0,
+          "confusion": 10.688524803059254,
+          "ref_time": 29.494999999999997,
+          "num_speakers_hyp": 2
+        },
+        "0.90": {
+          "der": 0.3863,
+          "miss": 0.7054626740294779,
+          "false_alarm": 0.0,
+          "confusion": 10.688524803059254,
+          "ref_time": 29.494999999999997,
+          "num_speakers_hyp": 2
+        }
+      }
+    }
+  ]
+}

@@ -27,7 +27,10 @@ from .windows import merge_regions, slice_windows, windows_to_turns
 class ClusteredConfig:
     window: float = 1.5
     stride: float = 0.75
-    distance_threshold: float = 0.6
+    # Calibrated by `python -m diarlab.bench sweep` on held-out benchmark
+    # mixtures (see the README); the benchmark is clean read speech, so
+    # revisit this value for other acoustic regimes.
+    distance_threshold: float = 0.75
     num_speakers: int | None = None
     vad_threshold: float = 0.5
     min_gap: float = 0.3

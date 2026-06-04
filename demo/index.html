@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>speech-diarization-lab — demo</title>
+<title>speech-diarization-lab demo</title>
 <style>
   :root {
     --bg: #11151a;
@@ -66,7 +66,7 @@
 </head>
 <body>
 <div class="wrap">
-  <h1><a href="https://github.com/gradientsj/speech-diarization-lab">speech-diarization-lab</a> — live output</h1>
+  <h1><a href="https://github.com/gradientsj/speech-diarization-lab">speech-diarization-lab</a>: live output</h1>
   <p class="sub">
     Speaker-attributed transcription from the <code>clustered</code> backend
     (silero VAD + ECAPA-TDNN + agglomerative clustering) aligned to
@@ -148,7 +148,7 @@ async function load(id) {
     div.style.setProperty("--seg-color", speakerHue(s.speaker));
     const fmt = t => `${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,"0")}`;
     div.innerHTML = `<div class="who" style="color:${speakerHue(s.speaker)}">${s.speaker}
-      <div class="when">${fmt(s.start)}–${fmt(s.end)}</div></div>`;
+      <div class="when">${fmt(s.start)}-${fmt(s.end)}</div></div>`;
     const text = document.createElement("div");
     text.className = "text";
     for (const w of s.words) {

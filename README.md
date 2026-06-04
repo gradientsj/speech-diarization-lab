@@ -10,12 +10,12 @@ WER and DER are implemented from scratch against hand-computed values, and
 the diarizer is evaluated against the pretrained pyannote reference under
 identical metrics on a reproducible benchmark.
 
-**[Listen to the output](https://gradientsj.github.io/speech-diarization-lab/)** —
+**[Listen to the output](https://gradientsj.github.io/speech-diarization-lab/)**:
 three benchmark mixtures with the speaker-attributed transcript synced to the
 audio: per-speaker timeline, click-any-word-to-seek, live word highlighting.
 The transcripts shown are real pipeline output, hallucinations and all (the
 trailing *"Thank you for watching."* on mix_000 is Whisper inventing words
-over silence — visible in one listen, invisible in a pooled WER).
+over silence, visible in one listen and invisible in a pooled WER).
 
 ## The problem
 
@@ -67,7 +67,21 @@ uv run diarlab diarize meeting.wav --num-speakers 2
 # the gated reference backend (after accepting the pyannote model terms)
 uv sync --extra reference
 uv run diarlab diarize meeting.wav --backend pyannote
+
+# the HTTP serving layer: upload a file, poll the job, fetch JSON or SRT
+uv sync --extra models --extra serve
+uv run uvicorn diarlab.server:app --port 8000
+curl -X POST localhost:8000/jobs -F file=@meeting.wav   # -> {"id": ...}
+curl localhost:8000/jobs/<id>                           # -> status + segments
+curl localhost:8000/jobs/<id>/srt                       # -> subtitles
 ```
+
+The server runs jobs on one worker thread: the models load once and the GPU
+is a serial resource. The measured real-time factors say that is enough for
+interactive use (small/float16 transcribes at 0.022 RTF on an A10, roughly
+45x real time); scaling past one box is a load balancer in front of more
+instances, not threads. Model, device, and compute type come from
+`DIARLAB_MODEL` / `DIARLAB_DEVICE` / `DIARLAB_COMPUTE`.
 
 ## Running the benchmark
 
@@ -84,6 +98,17 @@ uv run python -m diarlab.bench run --model small --compute-type int8 --device cp
 Each `run` writes `reports/benchmark_<backend>_<model>_<compute>_<device>.json`
 with pooled WER, DER (split into miss / false alarm / confusion), per-mixture
 rows, and ASR real-time factors.
+
+A fourth subcommand calibrates the one real hyperparameter, the clustering
+distance threshold. Embeddings are computed once per mixture and clustering
+is rerun across the grid, so the whole sweep costs about one benchmark run:
+
+```bash
+uv run python -m diarlab.bench sweep --device cuda
+```
+
+It picks the threshold on half the mixtures, scores it on the other half,
+and writes the full grid to `reports/threshold_sweep.json`.
 
 On a CUDA box (tested on Lambda Stack / Ubuntu 22.04):
 
@@ -131,10 +156,10 @@ uv run python -m diarlab.bench run --backend pyannote --device cuda
 ## Results
 
 Pooled over the 12 mixtures (10.9 minutes of audio, 2-4 speakers each),
-DER collar 0.25 s, clustered backend at its default threshold 0.6 unless
-marked oracle. GPU rows ran on an NVIDIA A10 (Lambda, Ubuntu 22.04), CPU
-rows on a consumer Windows desktop. Per-mixture rows and exact configs are
-in `reports/`.
+DER collar 0.25 s; the clustered backend's distance threshold is stated per
+row. GPU rows ran on an NVIDIA A10 (Lambda, Ubuntu 22.04), CPU rows on a
+consumer Windows desktop. Per-mixture rows and exact configs are in
+`reports/`.
 
 ### Transcription and serving
 
@@ -170,20 +195,23 @@ What the table says:
 
 ### Diarization
 
-| backend | speaker count | DER | miss | false alarm | confusion |
-|---|---|---:|---:|---:|---:|
-| clustered (from parts) | estimated | **5.64%** | 4.36% | 0.00% | 1.28% |
-| clustered (from parts) | oracle | 4.36% | 4.36% | 0.00% | 0.00% |
-| pyannote-3.1 (reference) | estimated | 9.80% | 7.57% | 0.00% | 2.24% |
+| backend | speaker count | threshold | DER | miss | false alarm | confusion |
+|---|---|---|---:|---:|---:|---:|
+| clustered (from parts) | estimated | 0.75 (calibrated) | **4.36%** | 4.36% | 0.00% | 0.00% |
+| clustered (from parts) | estimated | 0.60 (old default) | 5.64% | 4.36% | 0.00% | 1.28% |
+| clustered (from parts) | oracle | 0.60 | 4.36% | 4.36% | 0.00% | 0.00% |
+| pyannote-3.1 (reference) | estimated | n/a | 9.80% | 7.57% | 0.00% | 2.24% |
 
 - The DER is **identical across every ASR configuration and across
   Windows-CPU vs Linux-A10**, per mixture to three decimals: the diarizer
   is fully decoupled from the ASR and deterministic across platforms.
 - Given the true speaker count, confusion drops to exactly zero: clustering
   itself attributes no time to the wrong speaker on these mixtures. The
-  whole 1.28% confusion component comes from overcounting speakers (3->4,
-  4->5 on a few mixtures), and the 4.36% floor is missed speech at VAD
-  boundaries. Each error component points at exactly one stage to improve.
+  whole 1.28% confusion component at the old 0.60 threshold came from
+  overcounting speakers (3->4, 4->5 on a few mixtures), and the 4.36% floor
+  is missed speech at VAD boundaries. Each error component points at
+  exactly one stage to improve, and the threshold calibration below
+  recovered the confusion component without being given the count.
 - **The from-parts pipeline beats the pretrained reference here, and the
   caveat matters as much as the number.** pyannote-3.1 scores 9.80% on the
   same mixtures under the same DER implementation, with the gap mostly in
@@ -195,9 +223,44 @@ What the table says:
   exists here. It estimated the speaker count correctly on 11 of 12
   mixtures (one 2->3 overcount). The honest claim is narrow: on
   non-overlapped read-speech mixtures, VAD + ECAPA + agglomerative
-  clustering is sufficient and the heavier pipeline buys nothing -- the
+  clustering is sufficient and the heavier pipeline buys nothing; the
   overlapped-speech mixtures planned below are where the ranking should
   flip.
+
+### Threshold calibration
+
+The clustering distance threshold is the from-parts pipeline's one real
+hyperparameter. `bench sweep` calibrates it honestly: embeddings are
+computed once per mixture, clustering is rerun across a 0.30-0.90 grid,
+the threshold is chosen on six mixtures and scored on the six it never
+saw. Full grid in `reports/threshold_sweep.json`.
+
+| threshold | calibration DER | held-out DER | speaker count correct |
+|---:|---:|---:|---:|
+| 0.50 | 28.83% | 32.62% | 0/12 |
+| 0.55 | 17.36% | 15.78% | 3/12 |
+| 0.60 | 5.75% | 5.52% | 7/12 |
+| 0.70 | 5.34% | 4.42% | 9/12 |
+| **0.75** | **4.94%** | **3.73%** | **12/12** |
+| 0.80 | 4.94% | 5.62% | 11/12 |
+| 0.85 | 4.94% | 11.50% | 10/12 |
+| 0.90 | 7.05% | 33.74% | 5/12 |
+
+What the sweep says:
+
+- **Calibration recovers the oracle bound without the oracle.** At 0.75 the
+  speaker count is right on all 12 mixtures, confusion is exactly zero, and
+  pooled DER equals the 4.36% VAD miss floor, the same number the
+  oracle-count condition reaches. The threshold is now the shipped default,
+  and the benchmark report regenerated at it confirms the sweep's numbers.
+- **The failure mode is asymmetric.** From 0.60 to 0.80 the curve is nearly
+  flat; above 0.80 it collapses (11.5% at 0.85, 33.7% at 0.90) as distinct
+  speakers merge into one cluster. Undercutting the threshold splits one
+  speaker into two, which the Hungarian mapping partially forgives;
+  overcutting merges two speakers into one, which it cannot. Err low.
+- The usual caveat: 0.75 is calibrated on clean read speech. The value to
+  trust is the shape of the curve and the calibration procedure, not the
+  constant; on a new acoustic regime, rerun the sweep.
 
 ## Repository layout
 
@@ -215,23 +278,25 @@ src/diarlab/
   formats.py     # JSON / SRT / RTTM writers
   audio.py       # mono float32 loading + polyphase resampling
   cli.py         # transcribe / diarize / attribute
-tests/           # CPU-only, no model downloads
+  server.py      # FastAPI upload -> job -> JSON/SRT (pipeline injectable)
+  bench.py       # fetch / build / run / sweep
+tests/           # CPU-only, no model downloads (the server is tested with
+                 # an injected stub pipeline)
 ```
 
 ## What I'd do next
 
-1. **Fix what the error decomposition points at**: looser VAD padding for
-   the 4.36% miss floor, and a better stopping rule for cluster count to
-   recover the 1.28% confusion without the oracle.
-2. **Calibrate the clustering threshold** on held-out mixtures instead of
-   using the 0.6 default, and report sensitivity.
-3. **Overlapped-speech mixtures**: the current benchmark has none, which
+1. **Looser VAD padding for the 4.36% miss floor**, now the only error
+   component left in the from-parts diarizer after calibration zeroed the
+   confusion.
+2. **Overlapped-speech mixtures**: the current benchmark has none, which
    flatters every system; partial-overlap construction is the obvious next
-   stressor.
-4. **A thin serving layer**: a small FastAPI endpoint over the attribute
-   pipeline, with the RTF table informing batch vs. streaming decisions.
-5. **Real conversational data**: AMI headset mix as a second benchmark with
+   stressor and the place the pyannote comparison should get interesting.
+3. **Real conversational data**: AMI headset mix as a second benchmark with
    published baselines to sanity-check against.
+4. **Streaming output on the server**: a WebSocket endpoint that emits
+   speaker-attributed segments as the decode progresses, instead of one
+   JSON at the end. The job API is the right substrate for it.
 
 ## License
 
