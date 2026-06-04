@@ -90,3 +90,54 @@ def test_pipeline_failure_lands_on_the_job():
     assert "corrupt audio" in body["error"]
     # the result endpoints refuse until there is a result
     assert client.get(f"/jobs/{job_id}/srt").status_code == 409
+
+
+def _stub_stream(path):
+    """Two segments produced with a gap, the streaming shape of the pipeline."""
+    yield Segment(0.0, 1.0, "SPEAKER_00", "hello", words=[Word(0.0, 1.0, "hello")])
+    time.sleep(0.05)
+    yield Segment(1.5, 2.0, "SPEAKER_01", "world", words=[Word(1.5, 2.0, "world")])
+
+
+def _collect_stream(ws):
+    messages = []
+    while True:
+        msg = ws.receive_json()
+        messages.append(msg)
+        if msg["type"] in ("status", "error"):
+            return messages
+
+
+def test_websocket_streams_segments_then_status():
+    client = TestClient(create_app(stream_fn=_stub_stream))
+    job_id = client.post("/jobs", files={"file": ("a.wav", b"x", "audio/wav")}).json()["id"]
+    with client.websocket_connect(f"/jobs/{job_id}/stream") as ws:
+        messages = _collect_stream(ws)
+    kinds = [m["type"] for m in messages]
+    assert kinds == ["segment", "segment", "status"]
+    assert messages[0]["segment"]["speaker"] == "SPEAKER_00"
+    assert messages[1]["segment"]["text"] == "world"
+    assert messages[-1]["status"] == "done"
+
+
+def test_websocket_replays_after_completion():
+    client = TestClient(create_app(stream_fn=_stub_stream))
+    job_id = client.post("/jobs", files={"file": ("a.wav", b"x", "audio/wav")}).json()["id"]
+    _wait_done(client, job_id)  # connect only after the job finished
+    with client.websocket_connect(f"/jobs/{job_id}/stream") as ws:
+        messages = _collect_stream(ws)
+    assert [m["type"] for m in messages] == ["segment", "segment", "status"]
+
+
+def test_websocket_unknown_job():
+    client = TestClient(create_app(attribute_fn=_stub_segments))
+    with client.websocket_connect("/jobs/nope/stream") as ws:
+        msg = ws.receive_json()
+    assert msg["type"] == "error"
+
+
+def test_streamed_segments_also_land_in_the_rest_result():
+    client = TestClient(create_app(stream_fn=_stub_stream))
+    job_id = client.post("/jobs", files={"file": ("a.wav", b"x", "audio/wav")}).json()["id"]
+    body = _wait_done(client, job_id)
+    assert [s["text"] for s in body["result"]["segments"]] == ["hello", "world"]

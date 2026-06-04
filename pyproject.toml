@@ -35,11 +35,13 @@ reference = [
     # was removed in huggingface_hub 1.0.
     "huggingface_hub<1.0",
 ]
-# The HTTP serving layer (upload a file, poll the job, fetch JSON/SRT).
+# The HTTP serving layer (upload a file, poll the job, fetch JSON/SRT,
+# or follow segments live over a WebSocket).
 serve = [
     "fastapi>=0.110",
     "uvicorn>=0.29",
     "python-multipart>=0.0.9",
+    "websockets>=12",
 ]
 dev = [
     "pytest>=8",

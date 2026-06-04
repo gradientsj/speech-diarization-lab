@@ -1,7 +1,14 @@
 """HTTP serving layer over the attribute pipeline.
 
 A small FastAPI app: upload audio, poll the job, fetch the result as
-speaker-attributed JSON or SRT.
+speaker-attributed JSON or SRT, or follow it live over a WebSocket that
+emits each segment as the decode produces it.
+
+The pipeline runs diarization first (it is the fast stage), then streams
+faster-whisper's lazily decoded segments through the word-speaker
+alignment, so attributed segments leave the server before the transcription
+finishes. A client that connects after completion gets the same event
+stream replayed.
 
 Jobs run on one worker thread. The models load once and the GPU is a serial
 resource, and the measured real-time factors say a single worker is enough
@@ -35,6 +42,7 @@ from .formats import segments_to_dict, segments_to_srt
 from .types import Segment
 
 AttributeFn = Callable[[Path], list[Segment]]
+StreamFn = Callable[[Path], "object"]  # Path -> iterator of Segment
 
 ALLOWED_SUFFIXES = {".wav", ".flac", ".mp3", ".ogg", ".m4a"}
 
@@ -56,36 +64,49 @@ class Job:
         return out
 
 
-def _attribute_from_env() -> AttributeFn:
-    """The real pipeline, configured from the environment, loaded lazily."""
+def _stream_from_env() -> StreamFn:
+    """The real pipeline, configured from the environment, loaded lazily.
+
+    Diarization runs first and in full (VAD, embeddings, and clustering are
+    the cheap stages), then ASR segments are attributed and yielded as
+    faster-whisper decodes them.
+    """
     model = os.environ.get("DIARLAB_MODEL", "small")
     device = os.environ.get("DIARLAB_DEVICE", "cpu")
     compute = os.environ.get("DIARLAB_COMPUTE", "int8")
 
-    def run(path: Path) -> list[Segment]:
+    def run(path: Path):
         from .align import assign_words, group_segments
-        from .asr import transcribe
+        from .asr import transcribe_stream
         from .audio import load_audio
         from .diarize import ClusteredConfig, diarize_clustered
 
-        result = transcribe(path, model_size=model, device=device, compute_type=compute)
         audio, rate = load_audio(path)
         turns = diarize_clustered(audio, rate, ClusteredConfig(device=device))
-        return group_segments(assign_words(result.words, turns))
+        for words in transcribe_stream(path, model_size=model, device=device, compute_type=compute):
+            yield from group_segments(assign_words(words, turns))
 
     return run
 
 
-def create_app(attribute_fn: AttributeFn | None = None):
+def create_app(attribute_fn: AttributeFn | None = None, stream_fn: StreamFn | None = None):
     try:
-        from fastapi import FastAPI, File, HTTPException, UploadFile
+        from fastapi import FastAPI, File, HTTPException, UploadFile, WebSocket
         from fastapi.responses import PlainTextResponse
     except ImportError as exc:  # pragma: no cover - exercised only without extras
         raise ImportError(
             "fastapi is not installed; install the serving layer with `uv sync --extra serve`"
         ) from exc
+    import asyncio
 
-    run_pipeline = attribute_fn or _attribute_from_env()
+    if stream_fn is None:
+        if attribute_fn is not None:
+            # a batch pipeline streams trivially: one burst at the end
+            def stream_fn(path, _fn=attribute_fn):
+                yield from _fn(path)
+        else:
+            stream_fn = _stream_from_env()
+
     app = FastAPI(title="diarlab", description="speaker-attributed transcription")
     jobs: dict[str, Job] = {}
     lock = Lock()
@@ -95,9 +116,10 @@ def create_app(attribute_fn: AttributeFn | None = None):
         with lock:
             jobs[job_id].status = "running"
         try:
-            segments = run_pipeline(path)
+            for segment in stream_fn(path):
+                with lock:
+                    jobs[job_id].segments.append(segment)
             with lock:
-                jobs[job_id].segments = segments
                 jobs[job_id].status = "done"
         except Exception as exc:  # surface the failure on the job, not the worker
             with lock:
@@ -147,6 +169,39 @@ def create_app(attribute_fn: AttributeFn | None = None):
         if job.status != "done":
             raise HTTPException(409, f"job is {job.status}, not done")
         return segments_to_srt(job.segments)
+
+    @app.websocket("/jobs/{job_id}/stream")
+    async def stream(websocket: WebSocket, job_id: str) -> None:
+        """Emit each attributed segment as it is produced, then the final status.
+
+        Already-produced segments are replayed first, so connecting late
+        (or after completion) yields the same stream.
+        """
+        await websocket.accept()
+        with lock:
+            known = job_id in jobs
+        if not known:
+            await websocket.send_json({"type": "error", "error": "no such job"})
+            await websocket.close(code=1008)
+            return
+        sent = 0
+        while True:
+            with lock:
+                job = jobs[job_id]
+                fresh = job.segments[sent:]
+                job_status, job_error = job.status, job.error
+            for segment in fresh:
+                payload = segments_to_dict([segment])["segments"][0]
+                await websocket.send_json({"type": "segment", "segment": payload})
+            sent += len(fresh)
+            if job_status in ("done", "error"):
+                final: dict = {"type": "status", "status": job_status}
+                if job_error:
+                    final["error"] = job_error
+                await websocket.send_json(final)
+                break
+            await asyncio.sleep(0.05)
+        await websocket.close()
 
     return app
 

@@ -45,6 +45,34 @@ def _model(model_size: str, device: str, compute_type: str):
     return WhisperModel(model_size, device=device, compute_type=compute_type)
 
 
+def transcribe_stream(
+    path: str | Path,
+    model_size: str = "small",
+    device: str = "cpu",
+    compute_type: str = "int8",
+    beam_size: int = 5,
+    language: str | None = None,
+):
+    """Yield each decoded segment's words as the transcription progresses.
+
+    faster-whisper decodes lazily: iterating its segment generator is what
+    runs the model, so words become available segment by segment instead of
+    all at once. This is the substrate for the server's streaming output.
+    """
+    model = _model(model_size, device, compute_type)
+    segments, _info = model.transcribe(
+        str(path),
+        beam_size=beam_size,
+        language=language,
+        word_timestamps=True,
+        vad_filter=True,
+    )
+    for segment in segments:
+        words = [Word(w.start, w.end, w.word.strip(), w.probability) for w in segment.words or []]
+        if words:
+            yield words
+
+
 def transcribe(
     path: str | Path,
     model_size: str = "small",
