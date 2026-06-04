@@ -37,7 +37,13 @@
     margin-bottom: 6px; cursor: pointer; overflow: hidden;
   }
   .tl-row { position: relative; height: 22px; }
+  .tl-row.with-ref { height: 36px; }
   .tl-band { position: absolute; top: 3px; bottom: 3px; border-radius: 3px; opacity: .85; }
+  .tl-row.with-ref .tl-band { bottom: auto; height: 13px; }
+  .tl-band.ref {
+    top: auto; bottom: 4px; height: 11px; opacity: 1;
+    background: transparent !important; border: 1.5px solid; border-radius: 3px;
+  }
   .tl-label {
     position: absolute; left: 6px; top: 50%; transform: translateY(-50%);
     font-size: 11px; color: var(--muted); pointer-events: none; z-index: 2;
@@ -46,8 +52,15 @@
     position: absolute; top: 0; bottom: 0; width: 2px; background: #fff;
     opacity: .9; pointer-events: none; z-index: 3;
   }
-  .legend { display: flex; gap: 14px; margin: 8px 0 20px; font-size: 13px; color: var(--muted); flex-wrap: wrap; }
+  .legend-bar { display: flex; gap: 14px; margin: 8px 0 20px; align-items: center; flex-wrap: wrap; }
+  .legend { display: flex; gap: 14px; font-size: 13px; color: var(--muted); flex-wrap: wrap; }
   .legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+  #refToggle {
+    margin-left: auto; background: var(--panel); color: var(--muted);
+    border: 1px solid #2c3640; border-radius: 6px; padding: 3px 10px;
+    font: inherit; font-size: 12px; cursor: pointer;
+  }
+  #refToggle.on { color: var(--accent); border-color: var(--accent); }
   /* transcript */
   .seg {
     display: grid; grid-template-columns: 86px 1fr; gap: 12px;
@@ -71,13 +84,19 @@
     Speaker-attributed transcription from the <code>clustered</code> backend
     (silero VAD + ECAPA-TDNN + agglomerative clustering) aligned to
     faster-whisper words. Click any word or the timeline to seek; the
-    transcript follows the audio. Speaker count is <em>estimated</em>, not given.
+    transcript follows the audio. Speaker count is <em>estimated</em>, not
+    given. Toggle <em>show reference</em> to see the ground-truth turns
+    outlined under the predictions; gaps between filled and outlined bands
+    are the diarization errors the benchmark scores.
   </p>
 
   <div class="samples" id="samples"></div>
   <audio id="player" controls preload="auto"></audio>
   <div id="timeline"></div>
-  <div class="legend" id="legend"></div>
+  <div class="legend-bar">
+    <div class="legend" id="legend"></div>
+    <button id="refToggle" title="Outlined bands show the ground-truth turns under the predicted ones">show reference</button>
+  </div>
   <div id="transcript"></div>
 
   <p class="note">
@@ -99,7 +118,9 @@ const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).
 
 const player = document.getElementById("player");
 const tl = document.getElementById("timeline");
-let segs = [], words = [], duration = 1, speakerColor = {};
+const refToggle = document.getElementById("refToggle");
+let segs = [], refTurns = [], words = [], duration = 1, speakerColor = {};
+let showRef = false;
 
 function speakerHue(name) {
   if (!(name in speakerColor))
@@ -107,25 +128,37 @@ function speakerHue(name) {
   return speakerColor[name];
 }
 
-async function load(id) {
-  document.querySelectorAll("#samples button").forEach(b =>
-    b.classList.toggle("active", b.dataset.id === id));
-  const data = await (await fetch(`data/${id}.json`)).json();
-  player.src = `data/${id}.wav`;
-  segs = data.segments;
-  speakerColor = {};
-  duration = Math.max(...segs.map(s => s.end), 1);
+// map each reference speaker to the predicted speaker it overlaps most,
+// greedily by total overlap, so reference bands inherit matching colors
+function mapRefSpeakers() {
+  const overlap = {};
+  for (const r of refTurns)
+    for (const s of segs) {
+      const o = Math.min(r.end, s.end) - Math.max(r.start, s.start);
+      if (o <= 0) continue;
+      overlap[r.speaker] ??= {};
+      overlap[r.speaker][s.speaker] = (overlap[r.speaker][s.speaker] || 0) + o;
+    }
+  const pairs = [];
+  for (const [rs, hyps] of Object.entries(overlap))
+    for (const [hs, o] of Object.entries(hyps)) pairs.push([o, rs, hs]);
+  pairs.sort((a, b) => b[0] - a[0]);
+  const mapping = {}, taken = new Set();
+  for (const [, rs, hs] of pairs) {
+    if (mapping[rs] || taken.has(hs)) continue;
+    mapping[rs] = hs;
+    taken.add(hs);
+  }
+  return mapping;
+}
 
-  // legend
+function buildTimeline() {
   const speakers = [...new Set(segs.map(s => s.speaker))].sort();
-  document.getElementById("legend").innerHTML = speakers.map(sp =>
-    `<span><span class="dot" style="background:${speakerHue(sp)}"></span>${sp}</span>`).join("");
-
-  // timeline: one row per speaker
+  const mapping = showRef ? mapRefSpeakers() : {};
   tl.innerHTML = '<div id="playhead"></div>';
   for (const sp of speakers) {
     const row = document.createElement("div");
-    row.className = "tl-row";
+    row.className = "tl-row" + (showRef ? " with-ref" : "");
     row.innerHTML = `<span class="tl-label">${sp}</span>`;
     for (const s of segs.filter(s => s.speaker === sp)) {
       const band = document.createElement("div");
@@ -135,8 +168,61 @@ async function load(id) {
       band.style.background = speakerHue(sp);
       row.appendChild(band);
     }
+    if (showRef) {
+      const mine = Object.entries(mapping).filter(([, hs]) => hs === sp).map(([rs]) => rs);
+      for (const r of refTurns.filter(r => mine.includes(r.speaker))) {
+        const band = document.createElement("div");
+        band.className = "tl-band ref";
+        band.style.left = (r.start / duration * 100) + "%";
+        band.style.width = ((r.end - r.start) / duration * 100) + "%";
+        band.style.borderColor = speakerHue(sp);
+        row.appendChild(band);
+      }
+    }
     tl.appendChild(row);
   }
+  // reference speakers with no predicted counterpart get their own rows
+  if (showRef) {
+    const mapped = new Set(Object.keys(mapping));
+    const orphans = [...new Set(refTurns.map(r => r.speaker))].filter(rs => !mapped.has(rs));
+    for (const rs of orphans) {
+      const row = document.createElement("div");
+      row.className = "tl-row with-ref";
+      row.innerHTML = `<span class="tl-label">ref ${rs} (missed)</span>`;
+      for (const r of refTurns.filter(r => r.speaker === rs)) {
+        const band = document.createElement("div");
+        band.className = "tl-band ref";
+        band.style.left = (r.start / duration * 100) + "%";
+        band.style.width = ((r.end - r.start) / duration * 100) + "%";
+        band.style.borderColor = css("--muted");
+        row.appendChild(band);
+      }
+      tl.appendChild(row);
+    }
+  }
+}
+
+async function load(id) {
+  document.querySelectorAll("#samples button").forEach(b =>
+    b.classList.toggle("active", b.dataset.id === id));
+  const data = await (await fetch(`data/${id}.json`)).json();
+  refTurns = [];
+  try {
+    const ref = await (await fetch(`data/${id}.ref.json`)).json();
+    refTurns = ref.turns;
+  } catch { /* no reference for this sample */ }
+  refToggle.style.display = refTurns.length ? "" : "none";
+  player.src = `data/${id}.wav`;
+  segs = data.segments;
+  speakerColor = {};
+  duration = Math.max(...segs.map(s => s.end), ...refTurns.map(r => r.end), 1);
+
+  // legend
+  const speakers = [...new Set(segs.map(s => s.speaker))].sort();
+  document.getElementById("legend").innerHTML = speakers.map(sp =>
+    `<span><span class="dot" style="background:${speakerHue(sp)}"></span>${sp}</span>`).join("");
+
+  buildTimeline();
 
   // transcript with word spans
   words = [];
@@ -187,6 +273,13 @@ player.addEventListener("timeupdate", () => {
     lastSeg = segEl;
   }
 });
+
+refToggle.onclick = () => {
+  showRef = !showRef;
+  refToggle.classList.toggle("on", showRef);
+  refToggle.textContent = showRef ? "hide reference" : "show reference";
+  buildTimeline();
+};
 
 document.getElementById("samples").innerHTML = SAMPLES.map(s =>
   `<button data-id="${s.id}">${s.label}</button>`).join("");
