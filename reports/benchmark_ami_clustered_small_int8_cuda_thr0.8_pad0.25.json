@@ -1,0 +1,51 @@
+{
+  "config": {
+    "model": "small",
+    "compute_type": "int8",
+    "device": "cuda",
+    "backend": "clustered",
+    "collar": 0.25,
+    "oracle_speaker_count": false,
+    "distance_threshold": 0.8,
+    "vad_pad": 0.25,
+    "set": "ami",
+    "mixtures": 3
+  },
+  "overall": {
+    "wer": 0.2657,
+    "der": 0.1655,
+    "der_miss": 0.1284,
+    "der_false_alarm": 0.0047,
+    "der_confusion": 0.0325,
+    "mean_rtf_asr": 0.0211
+  },
+  "per_mixture": [
+    {
+      "id": "ES2004a",
+      "duration": 1049.355,
+      "num_speakers_ref": 4,
+      "num_speakers_hyp": 13,
+      "wer": 0.2955,
+      "der": 0.2363,
+      "rtf_asr": 0.0211
+    },
+    {
+      "id": "IS1009b",
+      "duration": 2052.333,
+      "num_speakers_ref": 4,
+      "num_speakers_hyp": 24,
+      "wer": 0.2649,
+      "der": 0.1043,
+      "rtf_asr": 0.0265
+    },
+    {
+      "id": "TS3003a",
+      "duration": 1505.643,
+      "num_speakers_ref": 4,
+      "num_speakers_hyp": 20,
+      "wer": 0.2364,
+      "der": 0.2168,
+      "rtf_asr": 0.0157
+    }
+  ]
+}

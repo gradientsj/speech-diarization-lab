@@ -12,7 +12,9 @@ identical metrics on a reproducible benchmark.
 
 **[Listen to the output](https://gradientsj.github.io/speech-diarization-lab/)**:
 three benchmark mixtures with the speaker-attributed transcript synced to the
-audio: per-speaker timeline, click-any-word-to-seek, live word highlighting.
+audio: per-speaker timeline, click-any-word-to-seek, live word highlighting,
+and a toggle that outlines the ground-truth turns under the predictions so
+the diarization errors are visible, not just scored.
 The transcripts shown are real pipeline output, hallucinations and all (the
 trailing *"Thank you for watching."* on mix_000 is Whisper inventing words
 over silence, visible in one listen and invisible in a pooled WER).
@@ -130,6 +132,11 @@ uv run python -m diarlab.bench run --set overlap --device cuda
 uv run python -m diarlab.bench fetch-ami     # 3 meetings + annotations, ~170 MB
 uv run python -m diarlab.bench run --set ami --device cuda
 ```
+
+Calibrating for a new domain follows the same held-out discipline:
+`fetch-ami --dev` pulls three dev-partition meetings, `sweep --set ami-dev`
+chooses the constants on them, and `run --set ami --distance-threshold ...`
+scores the test meetings the sweep never saw.
 
 On a CUDA box (tested on Lambda Stack / Ubuntu 22.04):
 
@@ -348,10 +355,11 @@ the same DER implementation. Reference turns come from AMI's transcriber
 segments and genuinely overlap; collar 0.25 s; no recalibration of
 anything.
 
-| backend | DER | miss | false alarm | confusion |
-|---|---:|---:|---:|---:|
-| clustered (from parts) | 18.71% | 12.90% | 0.47% | 5.34% |
-| pyannote-3.1 (reference) | **13.25%** | 10.57% | 0.51% | 2.18% |
+| backend | constants | DER | miss | false alarm | confusion |
+|---|---|---:|---:|---:|---:|
+| clustered (from parts) | read-speech calibrated (0.75 / 0.25) | 18.71% | 12.90% | 0.47% | 5.34% |
+| clustered (from parts) | AMI-dev calibrated (0.80 / 0.25) | 16.55% | 12.84% | 0.47% | 3.25% |
+| pyannote-3.1 (reference) | as shipped | **13.25%** | 10.57% | 0.51% | 2.18% |
 
 - **The ranking finally flips.** On synthetic mixtures the from-parts
   pipeline beat the reference twice; on real meetings pyannote wins by
@@ -366,11 +374,20 @@ anything.
   ("on a new acoustic regime, rerun the sweep") was load-bearing. DER
   survives as well as it does (the Hungarian mapping scores the best four
   clusters) but the speaker count output is unusable here.
+- **The procedure transfers even though the constants do not.** Rerunning
+  the sweeps on three AMI *dev* meetings (one per site, never the test
+  meetings) chose threshold 0.80 and kept pad 0.25, and that single change
+  closed 40% of the gap to pyannote on the test meetings (18.71% to
+  16.55%, confusion 5.34% to 3.25%). What it did not fix is counting:
+  even at 0.80 the dev meetings cluster to 13 to 32 speakers. Dendrogram
+  cutting at a fixed distance is the wrong stopping rule for spontaneous
+  speech, and no constant will rescue it; that is now the roadmap item.
 - **Long real audio exposes an ASR tail failure mode.** small/float16
   fell into a repetition loop on TS3003a (92.5% WER on that meeting,
   pooling to 40.7%); the same model at int8 scored 23.6% on the same
-  audio. The second tail event of this kind in the project, and both were
-  invisible in pooled means until the per-file rows were read.
+  audio, reproduced across two separate runs. The second tail event of
+  this kind in the project, and both were invisible in pooled means until
+  the per-file rows were read.
 - Anchoring against published numbers, with the protocol differences
   stated: the pyannote 3.1 model card reports 18.8% DER on the full AMI
   headset-mix test set with no collar and word-based references. This
@@ -404,10 +421,11 @@ tests/           # CPU-only, no model downloads (the server is tested with
 
 ## What I'd do next
 
-1. **Recalibrate per domain**: let `bench sweep` run on any `--set`, then
-   calibrate the threshold and pad on AMI dev meetings and report how far
-   domain-matched calibration closes the 5.5-point gap to pyannote. The
-   AMI run showed the constants do not transfer; the procedure should.
+1. **A real stopping rule for the speaker count**: fixed-distance
+   dendrogram cutting estimates 13 to 32 speakers for 4-person meetings
+   even after domain calibration. Candidates: merge clusters below a
+   minimum speech duration, an eigengap criterion on the affinity matrix,
+   or calibrating the count penalty directly.
 2. **Guard the ASR decode on long audio**: the TS3003a repetition loop
    (92.5% WER at float16, 23.6% at int8) wants a fix and a regression
    check, likely conditioning and temperature-fallback settings exposed
@@ -416,10 +434,7 @@ tests/           # CPU-only, no model downloads (the server is tested with
    structural, since the clustered pipeline emits one speaker at a time. A
    second-pass overlap detector (or per-window soft assignment to two
    clusters) is the targeted fix.
-4. **Reference vs hypothesis in the demo**: a toggle on the demo timeline
-   showing the ground-truth turns under the predicted ones, so diarization
-   errors are visible instead of only scored.
-5. **A Dockerfile for the server**, with the cuDNN/cuBLAS path baked in,
+4. **A Dockerfile for the server**, with the cuDNN/cuBLAS path baked in,
    so the serving layer deploys without the runbook.
 
 ## License

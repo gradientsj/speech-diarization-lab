@@ -42,6 +42,10 @@ ANNOTATIONS_URL = (
 # reality, not a leaderboard run.
 DEFAULT_MEETINGS = ("ES2004a", "IS1009b", "TS3003a")
 
+# Matching meetings from the AMI dev partition, one per site, used to
+# calibrate without touching the test meetings.
+DEV_MEETINGS = ("ES2011a", "IS1008b", "TS3004a")
+
 SPEAKER_CHANNELS = ("A", "B", "C", "D")
 
 

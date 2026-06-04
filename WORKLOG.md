@@ -3,6 +3,29 @@
 Running notes on what was done and what each step found. Newest first.
 Numbers here are snapshots; the README tables are the source of truth.
 
+## 2026-06-04: domain recalibration and the demo reference toggle
+
+- **Recalibrated on AMI dev meetings** (`fetch-ami --dev`, then
+  `sweep --set ami-dev`): three dev-partition meetings, one per site,
+  never the test meetings. The threshold sweep (extended grid, since
+  spontaneous-speech embeddings spread wider) chose 0.80; the pad sweep
+  confirmed 0.25 was already right. One constant changed.
+- **That one change closed 40% of the gap to pyannote** on the test
+  meetings: 18.71% to 16.55% DER, confusion 5.34% to 3.25%. The
+  calibration procedure transfers across domains even though the
+  constants do not, which was the claim worth testing.
+- **What it did not fix**: speaker counting. Even at 0.80 the meetings
+  cluster to 13 to 32 speakers for 4. Fixed-distance dendrogram cutting
+  is the wrong stopping rule for spontaneous speech; a duration-aware
+  merge or eigengap criterion is the new top roadmap item.
+- The int8 rerun also reproduced the float16 repetition loop finding
+  from the other side: same audio, 26.6% pooled WER vs 40.7%.
+- **Demo: reference vs hypothesis toggle.** The timeline now outlines
+  the ground-truth turns under the predicted bands (reference speakers
+  matched to predicted ones by overlap), so boundary errors and missed
+  speech are visible per pixel. Reference turns for the three demo
+  mixtures ship as static JSON next to the predictions.
+
 ## 2026-06-04: AMI headset mix, the reality check
 
 - **Added AMI as a third benchmark set** (`bench fetch-ami`, then

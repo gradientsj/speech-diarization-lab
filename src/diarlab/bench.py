@@ -49,6 +49,7 @@ SETS = {
     "plain": MIXTURE_DIR,
     "overlap": DATA_DIR / "mixtures_overlap",
     "ami": DATA_DIR / "ami",
+    "ami-dev": DATA_DIR / "ami_dev",
 }
 
 
@@ -181,15 +182,22 @@ def _load_manifest(mixture_dir: Path) -> list[dict]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line]
 
 
-def _diarize_mixture(wav: Path, backend: str, num_speakers: int | None, device: str) -> list[Turn]:
+def _diarize_mixture(
+    wav: Path,
+    backend: str,
+    num_speakers: int | None,
+    device: str,
+    config: ClusteredConfig | None = None,
+) -> list[Turn]:
     if backend == "pyannote":
         from .diarize import diarize_pyannote
 
         return diarize_pyannote(wav, num_speakers=num_speakers, device=device)
-    from .diarize import ClusteredConfig, diarize_clustered
+    from .diarize import diarize_clustered
 
     audio, rate = load_audio(wav)
-    return diarize_clustered(audio, rate, ClusteredConfig(num_speakers=num_speakers, device=device))
+    cfg = config or ClusteredConfig(num_speakers=num_speakers, device=device)
+    return diarize_clustered(audio, rate, cfg)
 
 
 def cmd_run(args: argparse.Namespace) -> int:
@@ -198,6 +206,14 @@ def cmd_run(args: argparse.Namespace) -> int:
     mixture_dir = SETS[args.set]
     manifest = _load_manifest(mixture_dir)
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
+
+    # effective clustered-backend constants: shipped defaults unless overridden
+    threshold = (
+        args.distance_threshold
+        if args.distance_threshold is not None
+        else ClusteredConfig.distance_threshold
+    )
+    pad = args.vad_pad if args.vad_pad is not None else ClusteredConfig.vad_pad
 
     rows: list[dict] = []
     pooled = {"errors": 0, "ref_words": 0, "miss": 0.0, "fa": 0.0, "conf": 0.0, "ref_time": 0.0}
@@ -214,7 +230,13 @@ def cmd_run(args: argparse.Namespace) -> int:
         )
         w = wer(normalize_text(entry["text"]), normalize_text(result.text))
 
-        hyp_turns = _diarize_mixture(wav, args.backend, num_speakers, args.device)
+        config = ClusteredConfig(
+            num_speakers=num_speakers,
+            device=args.device,
+            distance_threshold=threshold,
+            vad_pad=pad,
+        )
+        hyp_turns = _diarize_mixture(wav, args.backend, num_speakers, args.device, config=config)
         d = der(reference_turns, hyp_turns, collar=args.collar)
 
         pooled["errors"] += w.errors
@@ -255,10 +277,8 @@ def cmd_run(args: argparse.Namespace) -> int:
             "backend": args.backend,
             "collar": args.collar,
             "oracle_speaker_count": args.oracle_speaker_count,
-            "distance_threshold": ClusteredConfig.distance_threshold
-            if args.backend == "clustered"
-            else None,
-            "vad_pad": ClusteredConfig.vad_pad if args.backend == "clustered" else None,
+            "distance_threshold": threshold if args.backend == "clustered" else None,
+            "vad_pad": pad if args.backend == "clustered" else None,
             "set": args.set,
             "mixtures": len(rows),
         },
@@ -278,8 +298,10 @@ def cmd_run(args: argparse.Namespace) -> int:
         tag += "_oracle"
     if args.collar != 0.25:
         tag += f"_collar{args.collar:g}"
+    if args.distance_threshold is not None or args.vad_pad is not None:
+        tag += f"_thr{threshold:g}_pad{pad:g}"
     if args.set != "plain":
-        tag = f"{args.set}_" + tag
+        tag = f"{args.set.replace('-', '_')}_" + tag
     out_json = REPORT_DIR / f"benchmark_{tag}.json"
     out_json.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(summary["overall"], indent=2))
@@ -332,7 +354,8 @@ def cmd_sweep(args: argparse.Namespace) -> int:
     from .vad import detect_speech
     from .windows import merge_regions, slice_windows, windows_to_turns
 
-    manifest = _load_manifest(MIXTURE_DIR)
+    set_dir = SETS[args.set]
+    manifest = _load_manifest(set_dir)
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
     lo, hi, step = SWEEP_GRIDS[args.param]
     lo, hi, step = (
@@ -341,7 +364,15 @@ def cmd_sweep(args: argparse.Namespace) -> int:
         args.step if args.step is not None else step,
     )
     values = [f"{v:.2f}" for v in np.arange(lo, hi + step / 2, step)]
-    cfg = ClusteredConfig(device=args.device)
+    # the non-swept parameter can be pinned, e.g. a pad sweep at a
+    # domain-calibrated threshold
+    cfg = ClusteredConfig(
+        device=args.device,
+        distance_threshold=args.distance_threshold
+        if args.distance_threshold is not None
+        else ClusteredConfig.distance_threshold,
+        vad_pad=args.vad_pad if args.vad_pad is not None else ClusteredConfig.vad_pad,
+    )
     embedder = EcapaEmbedder(device=args.device)
 
     def score(reference_turns, windows, labels):
@@ -358,7 +389,7 @@ def cmd_sweep(args: argparse.Namespace) -> int:
 
     rows: list[dict] = []
     for entry in manifest:
-        audio, rate = load_audio(MIXTURE_DIR / entry["wav"])
+        audio, rate = load_audio(set_dir / entry["wav"])
         reference_turns = [Turn(**t) for t in entry["turns"]]
         raw = detect_speech(audio, rate, threshold=cfg.vad_threshold)
         row = {"id": entry["id"], "num_speakers_ref": entry["num_speakers"], "by_value": {}}
@@ -415,6 +446,7 @@ def cmd_sweep(args: argparse.Namespace) -> int:
     summary = {
         "config": {
             "param": args.param,
+            "set": args.set,
             "device": args.device,
             "collar": args.collar,
             "grid": [float(v) for v in values],
@@ -428,7 +460,8 @@ def cmd_sweep(args: argparse.Namespace) -> int:
         "grid": grid,
         "per_mixture": rows,
     }
-    out_json = REPORT_DIR / f"{args.param}_sweep.json"
+    suffix = "" if args.set == "plain" else f"_{args.set.replace('-', '_')}"
+    out_json = REPORT_DIR / f"{args.param}_sweep{suffix}.json"
     out_json.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: v for k, v in summary.items() if k not in ("grid", "per_mixture")}))
     for v in values:
@@ -450,8 +483,11 @@ def cmd_sweep(args: argparse.Namespace) -> int:
 def cmd_fetch_ami(args: argparse.Namespace) -> int:
     from . import ami
 
-    meetings = tuple(args.meetings.split(",")) if args.meetings else ami.DEFAULT_MEETINGS
-    return ami.fetch(SETS["ami"], meetings=meetings)
+    if args.meetings:
+        meetings = tuple(args.meetings.split(","))
+    else:
+        meetings = ami.DEV_MEETINGS if args.dev else ami.DEFAULT_MEETINGS
+    return ami.fetch(SETS["ami-dev" if args.dev else "ami"], meetings=meetings)
 
 
 # ---------------------------------------------------------------------------
@@ -494,6 +530,18 @@ def build_parser() -> argparse.ArgumentParser:
         choices=sorted(SETS),
         help="which benchmark set to score (plain mixtures, overlap mixtures, or AMI)",
     )
+    p_run.add_argument(
+        "--distance-threshold",
+        type=float,
+        default=None,
+        help="clustered backend: override the shipped clustering threshold",
+    )
+    p_run.add_argument(
+        "--vad-pad",
+        type=float,
+        default=None,
+        help="clustered backend: override the shipped VAD edge padding",
+    )
     p_run.set_defaults(func=cmd_run)
 
     p_ami = sub.add_parser(
@@ -504,6 +552,11 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="comma-separated meeting ids (default: a fixed test-partition subset)",
     )
+    p_ami.add_argument(
+        "--dev",
+        action="store_true",
+        help="fetch the dev-partition calibration meetings into data/ami_dev/ instead",
+    )
     p_ami.set_defaults(func=cmd_fetch_ami)
 
     p_sweep = sub.add_parser("sweep", help="calibrate one pipeline parameter on held-out mixtures")
@@ -513,6 +566,24 @@ def build_parser() -> argparse.ArgumentParser:
     p_sweep.add_argument("--step", type=float, default=None, help="grid step (per-param default)")
     p_sweep.add_argument("--device", default="cpu", choices=["cpu", "cuda"])
     p_sweep.add_argument("--collar", type=float, default=0.25)
+    p_sweep.add_argument(
+        "--set",
+        default="plain",
+        choices=sorted(SETS),
+        help="which benchmark set to calibrate on (use a dev set, not the one you report)",
+    )
+    p_sweep.add_argument(
+        "--distance-threshold",
+        type=float,
+        default=None,
+        help="pin the threshold while sweeping another parameter",
+    )
+    p_sweep.add_argument(
+        "--vad-pad",
+        type=float,
+        default=None,
+        help="pin the pad while sweeping another parameter",
+    )
     p_sweep.set_defaults(func=cmd_sweep)
     return parser
 
